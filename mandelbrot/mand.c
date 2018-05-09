@@ -21,7 +21,7 @@ void arg_error(char *msg) {
 
 void proc_args(int argc, char *argv[]) {
     int i, j;
-    char buf[80], *p, *r[4]; 
+    char buf[80], *p, *r[4];
 
     for (i = 1; i < argc; i++) {
         if (strncmp("-m", argv[i], 2) == 0) {
@@ -89,7 +89,7 @@ void write_pixel(int n) {
         } else {
             putchar(' ');
         }
-        if (count >= resx) { 
+        if (count >= resx) {
             putchar('\n');
             count = 0;
         }
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
                 if ((zr2 + zi2) > 4)
                     break;
             }
-            write_pixel(n); 
+            write_pixel(n);
         }
     }
 
