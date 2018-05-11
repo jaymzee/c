@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -std=c89 -Wall -pedantic-errors -march=native -mfpmath=387 -g
-LFLAGS = 
+CFLAGS = -std=c89 -Wall -pedantic-errors -march=native -mfpmath=sse
+LFLAGS = -s
 mand: mand.o
 	$(CC) -o mand mand.o $(LFLAGS)
 mand.o: mand.c
