@@ -42,10 +42,10 @@ int main()
 
     fp = fopen("audio-mono-8bit-8khz.wav", "wb");
     wavefmt_write_header(&fmt1, fp);
-    fwrite(data1, 2, 8, fp);
+    fwrite(data1, 1, 4, fp);
     fclose(fp);
 
-    fp = fopen("audio-stero-16bit-48khz.wav", "wb");
+    fp = fopen("audio-stereo-16bit-48khz.wav", "wb");
     wavefmt_write_header(&fmt2, fp);
     fwrite(data2, 2, 8, fp);
     fclose(fp);
