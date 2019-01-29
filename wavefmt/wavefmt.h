@@ -21,6 +21,7 @@ struct wavefmt {
 };
 
 long wavefmt_read_header(struct wavefmt *fmt, char *tag, FILE *fp);
+long wavefmt_write_header(struct wavefmt *fmt, FILE *fp);
 void wavefmt_print_header(struct wavefmt *fmt);
 int wavefmt_dump(char *filename);
 

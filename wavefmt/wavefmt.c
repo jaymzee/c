@@ -78,6 +78,17 @@ fail:
 }
 
 /*
+ * wavefmt_write_header() - write wavefmt RIFF header to file
+ * @fmt: pointer to the format header struct to write
+ *
+ * Return: bytes written to file
+ */
+long wavefmt_write_header(struct wavefmt *fmt, FILE *fp)
+{
+    return fwrite(fmt, sizeof(*fmt), 1, fp);
+}
+
+/*
  * wavefmt_print_header() - print wavefmt RIFF header to stdout
  * @fmt: pointer to the format header structure to dump 
  *
