@@ -1,6 +1,7 @@
 #include "wavefmt.h"
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 
 struct wavefmt fmt1 = {
     "RIFF", /* RIFF chunk tag */
@@ -15,9 +16,8 @@ struct wavefmt fmt1 = {
     1,      /* block align */
     8,      /* bits per sample */
     "data", /* data chunk tag */
-    4       /* size of data */
+    0       /* size of data */
 }; /* overall size of header should be 44 bytes */
-uint8_t data1[4] = {42, 43, 44, 45};
 
 struct wavefmt fmt2 = {
     "RIFF", /* RIFF chunk tag */
@@ -26,28 +26,50 @@ struct wavefmt fmt2 = {
     "fmt ", /* format chunk tag */
     16,     /* format chunk length */
     1,      /* PCM */
-    2,      /* no. of channels */
-    48000,  /* sample rate */
-    192000, /* byte rate */
-    4,      /* block align */
+    1,      /* no. of channels */
+    44100,  /* sample rate */
+    88200,  /* byte rate */
+    2,      /* block align */
     16,     /* bits per sample */
     "data", /* data chunk tag */
-    16      /* size of data */
+    0       /* size of data */
 }; /* overall size of header should be 44 bytes */
-int16_t data2[8] = {0, 1, -1, 200, -200, 1000, -1000, 0};
 
 int main()
 {
     FILE *fp;
+    double t, T, y;
+    int n;
+    uint8_t samp8;
+    int16_t samp16;
 
+    fmt1.data_size = fmt1.samplerate * 1; /* one second */
+    fmt1.riff_size = fmt1.data_size + 44 - 8;
     fp = fopen("audio-mono-8bit-8khz.wav", "wb");
     wavefmt_write_header(&fmt1, fp);
-    fwrite(data1, 1, 4, fp);
+    T = 1.0 / (double)fmt1.samplerate;
+    t = 0.0;
+    for (n = 0; n < fmt1.samplerate; n++) {
+        y = cos(6.2831853 * 1000 * t);
+        samp8 = 0x80 + 50 * y;
+        fwrite(&samp8, 1, 1, fp);
+        t += T;
+    }
     fclose(fp);
 
-    fp = fopen("audio-stereo-16bit-48khz.wav", "wb");
+    
+    fmt2.data_size = fmt2.samplerate * 2; /* one second */
+    fmt2.riff_size = fmt2.data_size + 44 - 8;
+    fp = fopen("audio-mono-16bit-48khz.wav", "wb");
     wavefmt_write_header(&fmt2, fp);
-    fwrite(data2, 2, 8, fp);
+    T = 1.0 / (double)fmt2.samplerate;
+    t = 0.0;
+    for (n = 0; n < fmt2.samplerate; n++) {
+        y = cos(6.2831853 * 1000 * t);
+        samp16 = 12900 * y;
+        fwrite(&samp16, 1, 1, fp);
+        t += T;
+    }
     fclose(fp);
 
     return 0;

@@ -5,7 +5,7 @@ all: wavdump wavwrite
 wavdump: wavdump.o wavefmt.o
 	$(CC) -o wavdump wavdump.o wavefmt.o $(LFLAGS)
 wavwrite: wavwrite.o wavefmt.o
-	$(CC) -o wavwrite wavwrite.o wavefmt.o $(LFLAGS)
+	$(CC) -o wavwrite wavwrite.o wavefmt.o -lm $(LFLAGS)
 wavwrite.o: wavwrite.c wavefmt.h
 	$(CC) $(CFLAGS) -c wavwrite.c
 wavdump.o: wavdump.c wavefmt.h
