@@ -41,8 +41,9 @@ static long read_data(struct wavefmt *fmt, char *fn, FILE *fp)
 
     bytecount += fread(&fmt->data_size, 4, 1, fp) * 4;
 
-    /* not going to actually read the data leaving the file pointer
-       right at the beginning of it since this is the last chunk */
+    /* don't actually read the data.
+       leave the file pointer right at the beginning of it
+       since this is the last chunk */
 
     return bytecount;
 }

@@ -43,7 +43,7 @@ struct wavefmt fmt3 = {
     "WAVE", /* WAVE chunk tag */
     "fmt ", /* format chunk tag */
     16,     /* format chunk length */
-    1,      /* PCM */
+    3,      /* FLOAT */
     1,      /* no. of channels */
     44100,  /* sample rate */
     176400, /* byte rate */
@@ -98,7 +98,7 @@ int main()
     t = 0.0;
     for (n = 0; n < fmt3.samplerate; n++) {
         y = cos(2 * PI * 1000 * t);
-        samp32 = 0.5 * y;
+        samp32 = 0.457 * y;
         fwrite(&samp32, 4, 1, fp);
         t += T;
     }

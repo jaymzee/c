@@ -10,7 +10,7 @@ struct wavefmt {
     char     wave_tag[4];   /* WAVE chunk tag */
     char     fmt_tag[4];    /* 'fmt ' chunk tag */
     uint32_t fmt_size;      /* size of data format */
-    uint16_t format;        /* format type 1-PCM */
+    uint16_t format;        /* format type 1-PCM, 3-FLOAT */
     uint16_t channels;      /* # of channels */
     uint32_t samplerate;    /* sample rate (fs) */
     uint32_t byterate;      /* byte rate = fs * channels * bitspersample / 8 */
