@@ -1,78 +1,94 @@
 #include "wavefmt.h"
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
-#include <assert.h>
+
+/* helper for wavefmt_read_header */
+static int read_fmt(struct wavefmt *fmt, char *fn, FILE *fp)
+{
+    int bytecount = 0;
+
+    bytecount += fread(&fmt->fmt_size, 4, 1, fp) * 4;
+    if (fmt->fmt_size >= 16) {
+        bytecount += fread(&fmt->format, 2, 1, fp) * 2;
+        bytecount += fread(&fmt->channels, 2, 1, fp) * 2;
+        bytecount += fread(&fmt->samplerate, 4, 1, fp) * 4;
+        bytecount += fread(&fmt->byterate, 4, 1, fp) * 4;
+        bytecount += fread(&fmt->blockalign, 2, 1, fp) * 2;
+        bytecount += fread(&fmt->bitspersample, 2, 1, fp) * 2;
+    } else {
+        fprintf(stderr,
+                "%s: expected length of format >= 16 bytes, got %d\n",
+                fn, fmt->fmt_size);
+    }
+
+    return bytecount;
+}
+
+/* helper for wavefmt_read_header */
+static int read_data(struct wavefmt *fmt, char *fn, FILE *fp)
+{
+    int bytecount = 0;
+
+    bytecount += fread(&fmt->data_size, 4, 1, fp) * 4;
+
+    /* not going to actually read the data leaving the file pointer
+       right at the beginning of it since this is the last chunk */
+
+    return bytecount;
+}
 
 /*
  * wavefmt_read_header() - read the wavefmt RIFF header
  *
  * @fmt: pointer to the format header structure to fill
- * @tag: for better error messages, usually the filename
+ * @fn:  filename (for better error messages)
  * @fp:  the file to read it from
  *
  * Return: offset of the start of wave data on a successful read of format
  *         0 otherwise
  */
-long wavefmt_read_header(struct wavefmt *fmt, char *tag, FILE *fp)
+long wavefmt_read_header(struct wavefmt *fmt, char *fn, FILE *fp)
 {
-    long n;
+    char tag[4];
+    int size;
+    int bytecount = 0;
 
-    n = fread(fmt->riff_tag, 1, 4, fp);
-    assert(n == 4);
+    bytecount += fread(fmt->riff_tag, 1, 4, fp);
     if (strncmp(fmt->riff_tag, "RIFF", 4) != 0) {
-        fprintf(stderr, 
-                "%s: expected chunk RIFF, but got %.4s\n", 
-                tag, fmt->riff_tag);
-        goto fail;
-    }
-    n = fread(&fmt->riff_size, 4, 1, fp);
-    assert(n == 1);
-    n = fread(fmt->wave_tag, 1, 4, fp);
-    assert(n == 4);
-    if (strncmp(fmt->wave_tag, "WAVE", 4) != 0) {
-        fprintf(stderr, 
-                "%s: expected chunk wave, but got %.4s\n",
-                tag, fmt->wave_tag);
-        goto fail;
-    }
-    n = fread(fmt->fmt_tag, 1, 4, fp);
-    assert(n == 4);
-    if (strncmp(fmt->fmt_tag, "fmt ", 4) != 0) {
         fprintf(stderr,
-                "%s: expected chunk 'fmt ', but got %.4s\n",
-                tag, fmt->fmt_tag);
+                "%s: expected chunk RIFF, but got %.4s\n",
+                fn, fmt->riff_tag);
         goto fail;
     }
-    n = fread(&fmt->fmt_size, 4, 1, fp);
-    assert(n == 1);
-    if (fmt->fmt_size != 16) {
-        fprintf(stderr, 
-                "%s: expected length of format 16 bytes, got %d\n",
-                tag, fmt->fmt_size);
+    bytecount += fread(&fmt->riff_size, 4, 1, fp) * 4;
+    bytecount += fread(fmt->wave_tag, 1, 4, fp);
+    if (strncmp(fmt->wave_tag, "WAVE", 4) != 0) {
+        fprintf(stderr,
+                "%s: expected chunk WAVE, but got %.4s\n",
+                fn, fmt->wave_tag);
         goto fail;
     }
-    n = fread(&fmt->format, 2, 1, fp);
-    assert(n == 1);
-    n = fread(&fmt->channels, 2, 1, fp);
-    assert(n == 1);
-    n = fread(&fmt->samplerate, 4, 1, fp);
-    assert(n == 1);
-    n = fread(&fmt->byterate, 4, 1, fp);
-    assert(n == 1);
-    n = fread(&fmt->blockalign, 2, 1, fp);
-    assert(n == 1);
-    n = fread(&fmt->bitspersample, 2, 1, fp);
-    assert(n == 1);
-    n = fread(fmt->data_tag, 1, 4, fp);
-    assert(n == 4);
-    n = fread(&fmt->data_size, 4, 1, fp);
-    assert(n == 1);
 
-    /* i'm reusing n here for the return value to suppress the warning that
-       n is unused if the asserts above are disabled by defining NDEBUG */
-    n = ftell(fp);
-    
-    return n;   /* SUCCESS */
+    while (!feof(fp)) {
+        /* read chunk tag and chunk */
+        bytecount += fread(tag, 1, 4, fp);
+        if (strncmp(tag, "fmt ", 4) == 0) {
+            strncpy(fmt->fmt_tag, tag, 4);
+            bytecount += read_fmt(fmt, fn, fp);
+        } else if (strncmp(tag, "data", 4) == 0) {
+            strncpy(fmt->data_tag, tag, 4);
+            bytecount += read_data(fmt, fn, fp);
+            goto success;
+        } else {
+            /* ignore chunk */
+            bytecount += fread(&size, 4, 1, fp) * 4;
+            fseek(fp, size, SEEK_CUR);
+        }
+    }
+
+success:
+    return bytecount;   /* SUCCESS */
 fail:
     return 0;   /* FAILURE - could not parse header properly */
 }
@@ -90,7 +106,7 @@ long wavefmt_write_header(struct wavefmt *fmt, FILE *fp)
 
 /*
  * wavefmt_print_header() - print wavefmt RIFF header to stdout
- * @fmt: pointer to the format header structure to dump 
+ * @fmt: pointer to the format header structure to dump
  *
  * struct wavefmt fmt;
  * FILE fp = fopen("audio.wav", "rb");
