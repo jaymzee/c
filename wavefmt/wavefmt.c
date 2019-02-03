@@ -4,9 +4,10 @@
 #include <string.h>
 
 /* helper for wavefmt_read_header */
-static int read_fmt(struct wavefmt *fmt, char *fn, FILE *fp)
+static long read_fmt(struct wavefmt *fmt, char *fn, FILE *fp)
 {
-    int bytecount = 0;
+    long bytecount = 0;
+    long skip;
 
     bytecount += fread(&fmt->fmt_size, 4, 1, fp) * 4;
     if (fmt->fmt_size >= 16) {
@@ -21,14 +22,22 @@ static int read_fmt(struct wavefmt *fmt, char *fn, FILE *fp)
                 "%s: expected length of format >= 16 bytes, got %d\n",
                 fn, fmt->fmt_size);
     }
+    if (bytecount < fmt->fmt_size + 4) {
+        skip = fmt->fmt_size + 4 - bytecount;
+        fprintf(stderr, 
+                "skipping extra %ld bytes at end of chunk format\n", 
+                skip);
+        fseek(fp, skip, SEEK_CUR);
+        bytecount += skip;
+    }
 
     return bytecount;
 }
 
 /* helper for wavefmt_read_header */
-static int read_data(struct wavefmt *fmt, char *fn, FILE *fp)
+static long read_data(struct wavefmt *fmt, char *fn, FILE *fp)
 {
-    int bytecount = 0;
+    long bytecount = 0;
 
     bytecount += fread(&fmt->data_size, 4, 1, fp) * 4;
 
@@ -51,8 +60,8 @@ static int read_data(struct wavefmt *fmt, char *fn, FILE *fp)
 long wavefmt_read_header(struct wavefmt *fmt, char *fn, FILE *fp)
 {
     char tag[4];
-    int size;
-    int bytecount = 0;
+    uint32_t size;
+    long bytecount = 0;
 
     bytecount += fread(fmt->riff_tag, 1, 4, fp);
     if (strncmp(fmt->riff_tag, "RIFF", 4) != 0) {
@@ -82,6 +91,7 @@ long wavefmt_read_header(struct wavefmt *fmt, char *fn, FILE *fp)
             goto success;
         } else {
             /* ignore chunk */
+            fprintf(stderr, "%s: ignoring chuck %.4s\n", fn, tag);
             bytecount += fread(&size, 4, 1, fp) * 4;
             fseek(fp, size, SEEK_CUR);
         }
