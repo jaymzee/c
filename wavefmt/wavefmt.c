@@ -19,14 +19,14 @@ static long read_fmt(struct wavefmt *fmt, char *fn, FILE *fp)
         bytecount += fread(&fmt->bitspersample, 2, 1, fp) * 2;
     } else {
         fprintf(stderr,
-                "%s: expected length of format >= 16 bytes, got %d\n",
+                "%s: expected length of chunk fmt >= 16 bytes, got %d\n",
                 fn, fmt->fmt_size);
     }
     if (bytecount < fmt->fmt_size + 4) {
         skip = fmt->fmt_size + 4 - bytecount;
         fprintf(stderr, 
-                "skipping extra %ld bytes at end of chunk format\n", 
-                skip);
+                "%s: skipping extra %ld bytes at end of chunk fmt\n", 
+                fn, skip);
         fseek(fp, skip, SEEK_CUR);
         bytecount += skip;
     }
@@ -91,9 +91,10 @@ long wavefmt_read_header(struct wavefmt *fmt, char *fn, FILE *fp)
             goto success;
         } else {
             /* ignore chunk */
-            fprintf(stderr, "%s: ignoring chuck %.4s\n", fn, tag);
+            fprintf(stderr, "%s: ignoring chunk %.4s\n", fn, tag);
             bytecount += fread(&size, 4, 1, fp) * 4;
             fseek(fp, size, SEEK_CUR);
+            bytecount += size;
         }
     }
 
