@@ -70,7 +70,8 @@ int main()
     t = 0.0;
     for (n = 0; n < fmt1.samplerate; n++) {
         y = cos(2 * PI * 1000 * t);
-        samp8 = 0x80 + 50 * y;
+        /* scale and quantize (round) output sample */
+        samp8 = 128.5 + 50.0 * y;
         fwrite(&samp8, 1, 1, fp);
         t += T;
     }
@@ -84,7 +85,8 @@ int main()
     t = 0.0;
     for (n = 0; n < fmt2.samplerate; n++) {
         y = cos(2 * PI * 1000 * t);
-        samp16 = 15000 * y;
+        /* scale and quantize (round) output sample */
+        samp16 = (int)(32768.5 + 15000.0 * y) - 32768;
         fwrite(&samp16, 2, 1, fp);
         t += T;
     }
