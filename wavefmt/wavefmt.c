@@ -60,8 +60,8 @@ static long read_data(struct wavefmt *fmt, char *fn, FILE *fp)
  */
 long wavefmt_read_header(struct wavefmt *fmt, char *fn, FILE *fp)
 {
-    char tag[4];
-    uint32_t size;
+    char chunktag[4];
+    uint32_t chunksize;
     long bytecount = 0;
 
     bytecount += fread(fmt->riff_tag, 1, 4, fp);
@@ -81,21 +81,21 @@ long wavefmt_read_header(struct wavefmt *fmt, char *fn, FILE *fp)
     }
 
     while (!feof(fp)) {
-        /* read chunk tag and chunk */
-        bytecount += fread(tag, 1, 4, fp);
-        if (strncmp(tag, "fmt ", 4) == 0) {
-            strncpy(fmt->fmt_tag, tag, 4);
+        /* read chunk tag and the chunk */
+        bytecount += fread(chunktag, 1, 4, fp);
+        if (strncmp(chunktag, "fmt ", 4) == 0) {
+            strncpy(fmt->fmt_tag, chunktag, 4);
             bytecount += read_fmt(fmt, fn, fp);
-        } else if (strncmp(tag, "data", 4) == 0) {
-            strncpy(fmt->data_tag, tag, 4);
+        } else if (strncmp(chunktag, "data", 4) == 0) {
+            strncpy(fmt->data_tag, chunktag, 4);
             bytecount += read_data(fmt, fn, fp);
             goto success;
         } else {
             /* ignore chunk */
-            fprintf(stderr, "%s: ignoring chunk %.4s\n", fn, tag);
-            bytecount += fread(&size, 4, 1, fp) * 4;
-            fseek(fp, size, SEEK_CUR);
-            bytecount += size;
+            fprintf(stderr, "%s: ignoring chunk %.4s\n", fn, chunktag);
+            bytecount += fread(&chunksize, 4, 1, fp) * 4;
+            fseek(fp, chunksize, SEEK_CUR);
+            bytecount += chunksize;
         }
     }
 
