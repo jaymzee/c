@@ -20,9 +20,9 @@ struct wavefmt {
     uint32_t data_size;     /* size of data */
 };
 
-long wavefmt_read_header(struct wavefmt *fmt, char *tag, FILE *fp);
-long wavefmt_write_header(struct wavefmt *fmt, FILE *fp);
-void wavefmt_print_header(struct wavefmt *fmt);
-int wavefmt_dump(char *filename);
+long wavefmt_read_header(struct wavefmt *fmt, const char *tag, FILE *fp);
+long wavefmt_write_header(const struct wavefmt *fmt, FILE *fp);
+void wavefmt_print_header(const struct wavefmt *fmt);
+int wavefmt_dump(const char *filename);
 
 #endif /* WAVEFMT_H */

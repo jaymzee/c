@@ -4,10 +4,9 @@
 #include <string.h>
 
 /* helper for wavefmt_read_header */
-static long read_fmt(struct wavefmt *fmt, char *fn, FILE *fp)
+static long read_fmt(struct wavefmt *fmt, const char *fn, FILE *fp)
 {
     long bytecount = 0;
-    long skip;
 
     bytecount += fread(&fmt->fmt_size, 4, 1, fp) * 4;
     if (fmt->fmt_size >= 16) {
@@ -23,7 +22,7 @@ static long read_fmt(struct wavefmt *fmt, char *fn, FILE *fp)
                 fn, fmt->fmt_size);
     }
     if (bytecount < fmt->fmt_size + 4) {
-        skip = fmt->fmt_size + 4 - bytecount;
+        long skip = fmt->fmt_size + 4 - bytecount;
         fprintf(stderr, 
                 "%s: skipping extra %ld bytes at end of chunk fmt\n", 
                 fn, skip);
@@ -35,7 +34,7 @@ static long read_fmt(struct wavefmt *fmt, char *fn, FILE *fp)
 }
 
 /* helper for wavefmt_read_header */
-static long read_data(struct wavefmt *fmt, char *fn, FILE *fp)
+static long read_data(struct wavefmt *fmt, const char *fn, FILE *fp)
 {
     long bytecount = 0;
 
@@ -58,10 +57,8 @@ static long read_data(struct wavefmt *fmt, char *fn, FILE *fp)
  * Return: offset of the start of wave data on a successful read of format
  *         0 otherwise
  */
-long wavefmt_read_header(struct wavefmt *fmt, char *fn, FILE *fp)
+long wavefmt_read_header(struct wavefmt *fmt, const char *fn, FILE *fp)
 {
-    char chunktag[4];
-    uint32_t chunksize;
     long bytecount = 0;
 
     bytecount += fread(fmt->riff_tag, 1, 4, fp);
@@ -82,6 +79,7 @@ long wavefmt_read_header(struct wavefmt *fmt, char *fn, FILE *fp)
 
     while (!feof(fp)) {
         /* read chunk tag and the chunk */
+        char chunktag[4];
         bytecount += fread(chunktag, 1, 4, fp);
         if (strncmp(chunktag, "fmt ", 4) == 0) {
             strncpy(fmt->fmt_tag, chunktag, 4);
@@ -92,6 +90,7 @@ long wavefmt_read_header(struct wavefmt *fmt, char *fn, FILE *fp)
             goto success;
         } else {
             /* ignore chunk */
+            uint32_t chunksize;
             fprintf(stderr, "%s: ignoring chunk %.4s\n", fn, chunktag);
             bytecount += fread(&chunksize, 4, 1, fp) * 4;
             fseek(fp, chunksize, SEEK_CUR);
@@ -111,7 +110,7 @@ fail:
  *
  * Return: bytes written to file
  */
-long wavefmt_write_header(struct wavefmt *fmt, FILE *fp)
+long wavefmt_write_header(const struct wavefmt *fmt, FILE *fp)
 {
     return fwrite(fmt, sizeof(*fmt), 1, fp);
 }
@@ -128,7 +127,7 @@ long wavefmt_write_header(struct wavefmt *fmt, FILE *fp)
  * ... process audio
  * ...
  */
-void wavefmt_print_header(struct wavefmt *fmt)
+void wavefmt_print_header(const struct wavefmt *fmt)
 {
     printf("file length: %u\n", fmt->riff_size + 8);
     printf("format: ");
@@ -167,7 +166,7 @@ void wavefmt_print_header(struct wavefmt *fmt)
           -2 could not open file
           -3 could not parse file
  */
-int wavefmt_dump(char *filename)
+int wavefmt_dump(const char *filename)
 {
     FILE *fp;
     struct wavefmt fmt;
