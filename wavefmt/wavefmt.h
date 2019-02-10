@@ -20,9 +20,17 @@ struct wavefmt {
     uint32_t data_size;     /* size of data */
 };
 
+typedef float wave_filter(float x);
+
 long wavefmt_read_header(struct wavefmt *fmt, const char *tag, FILE *fp);
 long wavefmt_write_header(const struct wavefmt *fmt, FILE *fp);
 void wavefmt_print_header(const struct wavefmt *fmt);
 int wavefmt_dump(const char *filename);
+int wavefmt_filter(const char *infile, const char *outfile, wave_filter *f);
+
+#define WAVEFMT_PCM     1
+#define WAVEFMT_FLOAT   3
+#define WAVEFMT_ALAW    6
+#define WAVEFMT_uLAW    7
 
 #endif /* WAVEFMT_H */

@@ -132,16 +132,16 @@ void wavefmt_print_header(const struct wavefmt *fmt)
     printf("file length: %u\n", fmt->riff_size + 8);
     printf("format: ");
     switch (fmt->format) {
-    case 1:
+    case WAVEFMT_PCM:
         printf("PCM");
         break;
-    case 3:
+    case WAVEFMT_FLOAT:
         printf("IEEE float");
         break;
-    case 6:
+    case WAVEFMT_ALAW:
         printf("8 bit A-law");
         break;
-    case 7:
+    case WAVEFMT_uLAW:
         printf("8 bit mu-law");
     default:
         printf("unknown %d", fmt->format);
@@ -186,6 +186,78 @@ int wavefmt_dump(const char *filename)
 
     wavefmt_print_header(&fmt);
     printf("data seek start: 0x%08lx\n", data_seek_start);
+
+    return 0;
+}
+
+/*
+ * wavefmt_filter() - sample by sample filter
+ * @infile: filename of input wav file
+ * @outfile: filename of output wav file
+ * @filter: callback function for sample by sample processing
+ *
+ * Return: 0 on success
+ *        -2 could not open file
+ *        -3 could not parse file
+ *        -4 unsupported file format
+ */
+int wavefmt_filter(const char *infile, const char *outfile, wave_filter *f)
+{
+    FILE *fpi, *fpo;
+    struct wavefmt fmti, fmto;
+    long data_offset;
+    unsigned int N, n;
+    float x, y;
+
+    fpi = fopen(infile, "rb");
+    if (!fpi) {
+        perror(infile);
+        return -2;
+    }
+    fpo = fopen(outfile, "wb");
+    if (!fpo) {
+        perror(outfile);
+        return -2;
+    }
+    data_offset = wavefmt_read_header(&fmti, infile, fpi);
+    if (!data_offset) {
+        return -3;
+    }
+    N = fmti.data_size / fmti.blockalign;
+    fmto = fmti;
+    fmto.format = WAVEFMT_FLOAT;
+    fmto.fmt_size = 16;
+    fmto.bitspersample = 32;
+    fmto.blockalign = 4;
+    fmto.byterate = fmto.blockalign * fmto.samplerate;
+    fmto.data_size = N * fmto.blockalign;
+    fmto.riff_size = fmto.data_size + 16 + 8 + 8 + 4; 
+    wavefmt_write_header(&fmto, fpo);
+    if (fmti.format == WAVEFMT_PCM &&
+        fmti.bitspersample == 16 &&
+        fmti.channels == 1) {
+        int16_t samp;
+        for (n = 0; n < N; n++) {
+            fread(&samp, 2, 1, fpi);
+            x = samp / 32767.0;
+            y = f(x);
+            fwrite(&y, 4, 1, fpo);
+        }
+    } else if (fmti.format == WAVEFMT_FLOAT &&
+               fmti.bitspersample == 32 &&
+               fmti.channels == 1) {
+        for (n = 0; n < N; n++) {
+            fread(&x, 4, 1, fpi);
+            y = f(x);
+            fwrite(&y, 4, 1, fpo);
+        }
+    } else {
+        fprintf(stderr, "%s: unsupported format\n", infile);
+        return -4;
+    }
+
+    fclose(fpi);
+    fclose(fpo);
 
     return 0;
 }

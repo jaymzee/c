@@ -11,7 +11,7 @@ struct wavefmt fmt1 = {
     "WAVE", /* WAVE chunk tag */
     "fmt ", /* format chunk tag */
     16,     /* format chunk length */
-    1,      /* PCM */
+    WAVEFMT_PCM,
     1,      /* no. of channels */
     8000,   /* sample rate */
     8000,   /* byte rate */
@@ -27,7 +27,7 @@ struct wavefmt fmt2 = {
     "WAVE", /* WAVE chunk tag */
     "fmt ", /* format chunk tag */
     16,     /* format chunk length */
-    1,      /* PCM */
+    WAVEFMT_PCM,
     1,      /* no. of channels */
     44100,  /* sample rate */
     88200,  /* byte rate */
@@ -43,7 +43,7 @@ struct wavefmt fmt3 = {
     "WAVE", /* WAVE chunk tag */
     "fmt ", /* format chunk tag */
     16,     /* format chunk length */
-    3,      /* FLOAT */
+    WAVEFMT_FLOAT,
     1,      /* no. of channels */
     44100,  /* sample rate */
     176400, /* byte rate */

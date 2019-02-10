@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     int rv;
 
     if (argc != 2) {
-        fprintf(stderr, "Usage: testwav wavfile\n");
+        fprintf(stderr, "Usage: wavdump wavfile\n");
         return -1;
     }
 
