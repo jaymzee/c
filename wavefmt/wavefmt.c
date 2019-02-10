@@ -237,8 +237,9 @@ int wavefmt_filter(const char *infile, const char *outfile, wave_filter *f)
         fmti.bitspersample == 16 &&
         fmti.channels == 1) {
         int16_t samp;
-        for (n = 0; n < N; n++) {
-            fread(&samp, 2, 1, fpi);
+        n = 0;
+        while (n < N) {
+            n += fread(&samp, 2, 1, fpi);
             x = samp / 32767.0;
             y = f(x);
             fwrite(&y, 4, 1, fpo);
@@ -246,8 +247,9 @@ int wavefmt_filter(const char *infile, const char *outfile, wave_filter *f)
     } else if (fmti.format == WAVEFMT_FLOAT &&
                fmti.bitspersample == 32 &&
                fmti.channels == 1) {
-        for (n = 0; n < N; n++) {
-            fread(&x, 4, 1, fpi);
+        n = 0;
+        while (n < N) {
+            n += fread(&x, 4, 1, fpi);
             y = f(x);
             fwrite(&y, 4, 1, fpo);
         }
