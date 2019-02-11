@@ -190,24 +190,118 @@ int wavefmt_dump(const char *filename)
     return 0;
 }
 
+static void filter_pcm2float(FILE *fpi, FILE *fpo, 
+                             wave_filter *f, void *state, 
+                             uint32_t Nin, uint32_t Nout)
+{
+    float x, y;
+    int16_t samp16;
+    uint32_t n = 0;
+
+    while (n < Nin) {
+        n += fread(&samp16, 2, 1, fpi);
+        x = samp16 / 32767.0;
+        y = f(x, state);
+        fwrite(&y, 4, 1, fpo);
+    }
+    while (n < Nout) {
+        n++;
+        x = 0.0;
+        y = f(x, state);
+        fwrite(&y, 4, 1, fpo);
+    }
+}
+
+static void filter_pcm2pcm(FILE *fpi, FILE *fpo, 
+                           wave_filter *f, void *state, 
+                           uint32_t Nin, uint32_t Nout)
+{
+    float x, y;
+    int16_t samp16;
+    uint32_t n = 0;
+
+    while (n < Nin) {
+        n += fread(&samp16, 2, 1, fpi);
+        x = samp16 / 32767.0;
+        y = f(x, state);
+        samp16 = (int)(32768.5 + 32767.0 * y) - 32768;
+        fwrite(&samp16, 2, 1, fpo);
+    }
+    while (n < Nout) {
+        n++;
+        x = 0.0;
+        y = f(x, state);
+        samp16 = (int)(32768.5 + 32767.0 * y) - 32768;
+        fwrite(&samp16, 2, 1, fpo);
+    }
+}
+
+
+static void filter_float2float(FILE *fpi, FILE *fpo, 
+                               wave_filter *f, void *state, 
+                               uint32_t Nin, uint32_t Nout)
+{
+    float x, y;
+    uint32_t n = 0;
+
+    while (n < Nin) {
+        n += fread(&x, 4, 1, fpi);
+        y = f(x);
+        fwrite(&y, 4, 1, fpo);
+    }
+    while (n < Nout) {
+        n++;
+        x = 0.0;
+        y = f(x, state);
+        fwrite(&y, 4, 1, fpo);
+    }
+}
+
+static void filter_float2pcm(FILE *fpi, FILE *fpo, 
+                             wave_filter *f, void *state, 
+                             uint32_t Nin, uint32_t Nout)
+{
+    float x, y;
+    uint32_t n = 0;
+
+    while (n < Nin) {
+        n += fread(&x, 4, 1, fpi);
+        y = f(x);
+        samp16 = (int)(32768.5 + 32767.0 * y) - 32768;
+        fwrite(&samp16, 2, 1, fpo);
+    }
+    while (n < Nout) {
+        n++;
+        x = 0.0;
+        y = f(x, state);
+        samp16 = (int)(32768.5 + 32767.0 * y) - 32768;
+        fwrite(&samp16, 2, 1, fpo);
+    }
+}
+
 /*
  * wavefmt_filter() - sample by sample filter
  * @infile: filename of input wav file
  * @outfile: filename of output wav file
- * @filter: callback function for sample by sample processing
+ * @f: callback function for sample by sample processing
+ * @state: state to pass to sample processing function
+ * @format: WAVEFMT_FLOAT or WAVEFMT_PCM
+ * @t: length of time to run filter
+ *
+ * signal process infile to outfile (float)
  *
  * Return: 0 on success
  *        -2 could not open file
  *        -3 could not parse file
  *        -4 unsupported file format
  */
-int wavefmt_filter(const char *infile, const char *outfile, wave_filter *f)
+int wavefmt_filter(const char *infile, const char *outfile, 
+                   wave_filter *f, void *state, int format, double t)
 {
     FILE *fpi, *fpo;
     struct wavefmt fmti, fmto;
     long data_offset;
-    unsigned int N, n;
-    float x, y;
+    unsigned int Nin, Nout;
 
     fpi = fopen(infile, "rb");
     if (!fpi) {
@@ -223,36 +317,37 @@ int wavefmt_filter(const char *infile, const char *outfile, wave_filter *f)
     if (!data_offset) {
         return -3;
     }
-    N = fmti.data_size / fmti.blockalign;
+    if (fmti.channels != 1) {
+        fprintf(stderr, "%s: number of channels must be 1\n", infile);
+        return -4;
+    }
+    if (format != WAVEFMT_PCM && format != WAVEFMT_FLOAT) {
+        fprintf(stderr, "unsupported output format %d\n", format);
+        return -4
+    }
+
     fmto = fmti;
-    fmto.format = WAVEFMT_FLOAT;
+    Nin = fmti.data_size / fmti.blockalign;
+    Nout = fmto.samplerate * t
+    fmto.format = format;
     fmto.fmt_size = 16;
-    fmto.bitspersample = 32;
-    fmto.blockalign = 4;
+    fmto.bitspersample = (format == WAVEFMT_FLOAT) ? 32 : 16;
+    fmto.blockalign = (format == WAVEFMT_FLOAT) ? 4 : 2;
     fmto.byterate = fmto.blockalign * fmto.samplerate;
-    fmto.data_size = N * fmto.blockalign;
-    fmto.riff_size = fmto.data_size + 16 + 8 + 8 + 4; 
+    fmto.data_size = Nout * fmto.blockalign;
+    fmto.riff_size = fmto.data_size + 16 + 8 + 8 + 4;
     wavefmt_write_header(&fmto, fpo);
-    if (fmti.format == WAVEFMT_PCM &&
-        fmti.bitspersample == 16 &&
-        fmti.channels == 1) {
-        int16_t samp;
-        n = 0;
-        while (n < N) {
-            n += fread(&samp, 2, 1, fpi);
-            x = samp / 32767.0;
-            y = f(x);
-            fwrite(&y, 4, 1, fpo);
-        }
-    } else if (fmti.format == WAVEFMT_FLOAT &&
-               fmti.bitspersample == 32 &&
-               fmti.channels == 1) {
-        n = 0;
-        while (n < N) {
-            n += fread(&x, 4, 1, fpi);
-            y = f(x);
-            fwrite(&y, 4, 1, fpo);
-        }
+  
+    if (fmti.format == WAVEFMT_PCM && fmti.bitspersample == 16) {
+        if (format == WAVEFMT_FLOAT) 
+            filter_pcm2float(fpi, fpo, f, state, Nout);
+        else if (format == WAVEFMT_PCM)
+            filter_pcm2pcm(fpi, fpo, f, state, Nout);
+    } else if (fmti.format == WAVEFMT_FLOAT && fmti.bitspersample == 32) {
+        if (format == WAVEFMT_FLOAT) 
+            filter_float2float(fpi, fpo, f, state, Nout);
+        else if (format == WAVEFMT_PCM)
+            filter_float2pcm(fpi, fpo, f, state, Nout);
     } else {
         fprintf(stderr, "%s: unsupported format\n", infile);
         return -4;
