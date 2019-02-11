@@ -246,7 +246,7 @@ static void filter_float2float(FILE *fpi, FILE *fpo,
 
     while (n < Nin) {
         n += fread(&x, 4, 1, fpi);
-        y = f(x);
+        y = f(x, state);
         fwrite(&y, 4, 1, fpo);
     }
     while (n < Nout) {
@@ -262,11 +262,12 @@ static void filter_float2pcm(FILE *fpi, FILE *fpo,
                              uint32_t Nin, uint32_t Nout)
 {
     float x, y;
+    int16_t samp16;
     uint32_t n = 0;
 
     while (n < Nin) {
         n += fread(&x, 4, 1, fpi);
-        y = f(x);
+        y = f(x, state);
         samp16 = (int)(32768.5 + 32767.0 * y) - 32768;
         fwrite(&samp16, 2, 1, fpo);
     }
@@ -289,6 +290,7 @@ static void filter_float2pcm(FILE *fpi, FILE *fpo,
  * @t: length of time to run filter
  *
  * signal process infile to outfile (float)
+ * t = 0.0 will make the output the same length as the input
  *
  * Return: 0 on success
  *        -2 could not open file
@@ -323,12 +325,12 @@ int wavefmt_filter(const char *infile, const char *outfile,
     }
     if (format != WAVEFMT_PCM && format != WAVEFMT_FLOAT) {
         fprintf(stderr, "unsupported output format %d\n", format);
-        return -4
+        return -4;
     }
 
     fmto = fmti;
     Nin = fmti.data_size / fmti.blockalign;
-    Nout = fmto.samplerate * t
+    Nout = (t == 0.0) ? Nin : fmto.samplerate * t;
     fmto.format = format;
     fmto.fmt_size = 16;
     fmto.bitspersample = (format == WAVEFMT_FLOAT) ? 32 : 16;
@@ -340,14 +342,14 @@ int wavefmt_filter(const char *infile, const char *outfile,
   
     if (fmti.format == WAVEFMT_PCM && fmti.bitspersample == 16) {
         if (format == WAVEFMT_FLOAT) 
-            filter_pcm2float(fpi, fpo, f, state, Nout);
+            filter_pcm2float(fpi, fpo, f, state, Nin, Nout);
         else if (format == WAVEFMT_PCM)
-            filter_pcm2pcm(fpi, fpo, f, state, Nout);
+            filter_pcm2pcm(fpi, fpo, f, state, Nin, Nout);
     } else if (fmti.format == WAVEFMT_FLOAT && fmti.bitspersample == 32) {
         if (format == WAVEFMT_FLOAT) 
-            filter_float2float(fpi, fpo, f, state, Nout);
+            filter_float2float(fpi, fpo, f, state, Nin, Nout);
         else if (format == WAVEFMT_PCM)
-            filter_float2pcm(fpi, fpo, f, state, Nout);
+            filter_float2pcm(fpi, fpo, f, state, Nin, Nout);
     } else {
         fprintf(stderr, "%s: unsupported format\n", infile);
         return -4;
