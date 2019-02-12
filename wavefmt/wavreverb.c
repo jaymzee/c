@@ -19,5 +19,5 @@ int main(int argc, char *argv[])
     }
     
     return wavefmt_filter(argv[1], argv[2], circfilt_procsamp, fs,
-                          WAVEFMT_FLOAT, 4.0); 
+                          WAVEFMT_PCM, 2.0); 
 }

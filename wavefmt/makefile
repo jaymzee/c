@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -g -O2 -std=c89 -pedantic -Wall
-LFLAGS = 
+CFLAGS = -O2 -std=c89 -pedantic -Wall
+LFLAGS = -s
 all: wavdump wavwrite wavreverb wavcanfilt
 wavcanfilt: wavcanfilt.o wavefmt.o canfilt.o
 	$(CC) -o $@ $^ $(LFLAGS)
