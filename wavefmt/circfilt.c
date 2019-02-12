@@ -1,24 +1,13 @@
+#include "circfilt.h"
 #include <stdlib.h>
 #include <string.h>
 
-struct circular_filter_state {
-    double *w;
-    double *a_val;
-    double *b_val;
-    int *a_indx;
-    int *b_indx;
-    int Na;
-    int Nb;
-    int N;
-    int offset;
-};
-
-struct circular_filter_state *
-circular_filter_create(int N, int Nb, int *b_indx, double *b_val,
-                              int Na, int *a_indx, double *a_val)
+struct circfilt_state *
+circfilt_create(int N, int Nb, int *b_indx, double *b_val,
+                       int Na, int *a_indx, double *a_val)
 {
-    struct circular_state *s;
-    s = malloc(sizeof(struct circular_state));
+    struct circfilt_state *s;
+    s = malloc(sizeof(struct circfilt_state));
     s->N = N;
     s->Na = Na;
     s->Nb = Nb;
@@ -35,42 +24,42 @@ circular_filter_create(int N, int Nb, int *b_indx, double *b_val,
     return s;
 }
 
-void circular_filter_dec(struct circular_filter_state *s)
+void circfilt_dec(struct circfilt_state *s)
 {
     s->offset--;
     if (s->offset < 0)
         s->offset += s->N;
 }
 
-void circular_filter_inc(struct circular_filter_state *s)
+void circfilt_inc(struct circfilt_state *s)
 {
     s->offset++;
     if (s->offset > s->N)
         s->offset -= s->N;
 }
 
-double * circular_filter_w(struct circular_state *s, int n)
+double * circfilt_w(struct circfilt_state *s, int n)
 {
     return s->w + ((s->offset + n) % s->N);
 }
 
-float circular_filter(float x, void *state)
+float circfilt_procsamp(float x, void *state)
 {
-    struct circular_state *buf = state;
+    struct circfilt_state *fs = state;
     double y;
     double w0;
     int n;
 
     w0 = x;
-    for (n = 0; n < buf->Na; n++)
-        w0 -= buf->a_val[n] * *circular_w(buf, buf->a_indx[n]);
-    *circular_w(buf, 0) = w0;
+    for (n = 0; n < fs->Na; n++)
+        w0 -= fs->a_val[n] * *circfilt_w(fs, fs->a_indx[n]);
+    *circfilt_w(fs, 0) = w0;
 
     y = 0.0;
-    for (n = 0; n < buf->Nb; n++)
-        y += buf->b_val[n] * *circular_w(buf, buf->b_indx[n]);
+    for (n = 0; n < fs->Nb; n++)
+        y += fs->b_val[n] * *circfilt_w(fs, fs->b_indx[n]);
 
-    circular_dec(buf);
+    circfilt_dec(fs);
 
     return y;
 }

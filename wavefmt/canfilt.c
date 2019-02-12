@@ -1,18 +1,12 @@
+#include "canfilt.h"
 #include <stdlib.h>
 #include <string.h>
 
-struct canonical_filter_state {
-    double *w;
-    double *a;
-    double *b;
-    int N;
-};
-
-struct canonical_filter_state *
-canonical_filter_create(int N, double *b, double *a)
+struct canfilt_state *
+canfilt_create(int N, double *b, double *a)
 {
-    struct canonical_state *s;
-    s = malloc(sizeof(struct canonical_state));
+    struct canfilt_state *s;
+    s = malloc(sizeof(struct canfilt_state));
     s->N = N;
     s->w = calloc(N, sizeof(double));
     s->a = calloc(N, sizeof(double));
@@ -23,9 +17,9 @@ canonical_filter_create(int N, double *b, double *a)
     return s;
 }
 
-float canonical_filter(float x, void *state)
+float canfilt_procsamp(float x, void *state)
 {
-    const struct canonical_state *fs = state;
+    const struct canfilt_state *fs = state;
     const int N = fs->N;
     double *w = fs->w;
     double *a = fs->a;
