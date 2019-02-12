@@ -190,6 +190,11 @@ int wavefmt_dump(const char *filename)
     return 0;
 }
 
+double clamp(double d, double min, double max) {
+    const double t = d < min ? min : d;
+    return t > max ? max : t;
+}
+
 static void filter_pcm2float(FILE *fpi, FILE *fpo, 
                              filter_func *f, void *state, 
                              uint32_t Nin, uint32_t Nout)
@@ -201,13 +206,13 @@ static void filter_pcm2float(FILE *fpi, FILE *fpo,
     while (n < Nin) {
         n += fread(&samp16, 2, 1, fpi);
         x = samp16 / 32767.0;
-        y = f(x, state);
+        y = clamp(f(x, state), -1.0, 1.0);
         fwrite(&y, 4, 1, fpo);
     }
     while (n < Nout) {
         n++;
         x = 0.0;
-        y = f(x, state);
+        y = clamp(f(x, state), -1.0, 1.0);
         fwrite(&y, 4, 1, fpo);
     }
 }
@@ -223,14 +228,14 @@ static void filter_pcm2pcm(FILE *fpi, FILE *fpo,
     while (n < Nin) {
         n += fread(&samp16, 2, 1, fpi);
         x = samp16 / 32767.0;
-        y = f(x, state);
+        y = clamp(f(x, state), -1.0, 1.0);
         samp16 = (int)(32768.5 + 32767.0 * y) - 32768;
         fwrite(&samp16, 2, 1, fpo);
     }
     while (n < Nout) {
         n++;
         x = 0.0;
-        y = f(x, state);
+        y = clamp(f(x, state), -1.0, 1.0);
         samp16 = (int)(32768.5 + 32767.0 * y) - 32768;
         fwrite(&samp16, 2, 1, fpo);
     }
@@ -246,13 +251,13 @@ static void filter_float2float(FILE *fpi, FILE *fpo,
 
     while (n < Nin) {
         n += fread(&x, 4, 1, fpi);
-        y = f(x, state);
+        y = clamp(f(x, state), -1.0, 1.0);
         fwrite(&y, 4, 1, fpo);
     }
     while (n < Nout) {
         n++;
         x = 0.0;
-        y = f(x, state);
+        y = clamp(f(x, state), -1.0, 1.0);
         fwrite(&y, 4, 1, fpo);
     }
 }
@@ -267,14 +272,14 @@ static void filter_float2pcm(FILE *fpi, FILE *fpo,
 
     while (n < Nin) {
         n += fread(&x, 4, 1, fpi);
-        y = f(x, state);
+        y = clamp(f(x, state), -1.0, 1.0);
         samp16 = (int)(32768.5 + 32767.0 * y) - 32768;
         fwrite(&samp16, 2, 1, fpo);
     }
     while (n < Nout) {
         n++;
         x = 0.0;
-        y = f(x, state);
+        y = clamp(f(x, state), -1.0, 1.0);
         samp16 = (int)(32768.5 + 32767.0 * y) - 32768;
         fwrite(&samp16, 2, 1, fpo);
     }

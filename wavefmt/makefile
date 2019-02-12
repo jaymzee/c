@@ -1,28 +1,28 @@
 CC = gcc
-CFLAGS = -std=c89 -pedantic -Wall
+CFLAGS = -g -O2 -std=c89 -pedantic -Wall
 LFLAGS = 
 all: wavdump wavwrite wavreverb wavcanfilt
 wavcanfilt: wavcanfilt.o wavefmt.o canfilt.o
-	$(CC) -o wavcanfilt wavcanfilt.o wavefmt.o canfilt.o $(LFLAGS)
+	$(CC) -o $@ $^ $(LFLAGS)
 wavreverb: wavreverb.o wavefmt.o circfilt.o
-	$(CC) -o wavreverb wavreverb.o wavefmt.o circfilt.o $(LFLAGS)
+	$(CC) -o $@ $^ $(LFLAGS)
 wavwrite: wavwrite.o wavefmt.o
-	$(CC) -o wavwrite wavwrite.o wavefmt.o -lm $(LFLAGS)
+	$(CC) -o $@ $^ -lm $(LFLAGS)
 wavdump: wavdump.o wavefmt.o
-	$(CC) -o wavdump wavdump.o wavefmt.o $(LFLAGS)
+	$(CC) -o $@ $^ $(LFLAGS)
 wavcanfilt.o: wavcanfilt.c wavefmt.h canfilt.h
-	$(CC) $(CFLAGS) -c wavcanfilt.c
+	$(CC) $(CFLAGS) -c $<
 wavreverb.o: wavreverb.c wavefmt.h circfilt.h
-	$(CC) $(CFLAGS) -c wavreverb.c
+	$(CC) $(CFLAGS) -c $<
 canfilt.o: canfilt.c canfilt.h
-	$(CC) $(CFLAGS) -c canfilt.c
+	$(CC) $(CFLAGS) -c $<
 circfilt.o: circfilt.c circfilt.h
-	$(CC) $(CFLAGS) -c circfilt.c
+	$(CC) $(CFLAGS) -c $<
 wavwrite.o: wavwrite.c wavefmt.h
-	$(CC) $(CFLAGS) -c wavwrite.c
+	$(CC) $(CFLAGS) -c $<
 wavdump.o: wavdump.c wavefmt.h
-	$(CC) $(CFLAGS) -c wavdump.c
+	$(CC) $(CFLAGS) -c $<
 wavefmt.o: wavefmt.c wavefmt.h
-	$(CC) $(CFLAGS) -c wavefmt.c
+	$(CC) $(CFLAGS) -c $<
 clean:
 	rm -f *.o wavdump wavwrite wavcanfilt wavreverb
