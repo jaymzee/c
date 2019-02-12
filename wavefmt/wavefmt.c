@@ -191,7 +191,7 @@ int wavefmt_dump(const char *filename)
 }
 
 static void filter_pcm2float(FILE *fpi, FILE *fpo, 
-                             wave_filter *f, void *state, 
+                             filter_func *f, void *state, 
                              uint32_t Nin, uint32_t Nout)
 {
     float x, y;
@@ -213,7 +213,7 @@ static void filter_pcm2float(FILE *fpi, FILE *fpo,
 }
 
 static void filter_pcm2pcm(FILE *fpi, FILE *fpo, 
-                           wave_filter *f, void *state, 
+                           filter_func *f, void *state, 
                            uint32_t Nin, uint32_t Nout)
 {
     float x, y;
@@ -238,7 +238,7 @@ static void filter_pcm2pcm(FILE *fpi, FILE *fpo,
 
 
 static void filter_float2float(FILE *fpi, FILE *fpo, 
-                               wave_filter *f, void *state, 
+                               filter_func *f, void *state, 
                                uint32_t Nin, uint32_t Nout)
 {
     float x, y;
@@ -258,7 +258,7 @@ static void filter_float2float(FILE *fpi, FILE *fpo,
 }
 
 static void filter_float2pcm(FILE *fpi, FILE *fpo, 
-                             wave_filter *f, void *state, 
+                             filter_func *f, void *state, 
                              uint32_t Nin, uint32_t Nout)
 {
     float x, y;
@@ -298,7 +298,7 @@ static void filter_float2pcm(FILE *fpi, FILE *fpo,
  *        -4 unsupported file format
  */
 int wavefmt_filter(const char *infile, const char *outfile, 
-                   wave_filter *f, void *state, int format, double t)
+                   filter_func *f, void *state, int format, double t)
 {
     FILE *fpi, *fpo;
     struct wavefmt fmti, fmto;
