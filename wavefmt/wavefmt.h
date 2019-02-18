@@ -1,6 +1,8 @@
 #ifndef WAVEFMT_H
 #define WAVEFMT_H
 
+/* RIFF WAVE file format */
+
 #include "filter.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -21,10 +23,19 @@ struct wavefmt {
     uint32_t data_size;     /* size of data */
 };
 
+/* read the WAVEfmt RIFF header */
 long wavefmt_read_header(struct wavefmt *fmt, const char *tag, FILE *fp);
+
+/* write the WAVEfmt RIFF header */
 long wavefmt_write_header(const struct wavefmt *fmt, FILE *fp);
+
+/* print summary of the WAVEfmt RIFF header to stdout */
 void wavefmt_print_header(const struct wavefmt *fmt);
+
+/* dump a summary of the wav file to stdout */
 int wavefmt_dump(const char *filename);
+
+/* sample by sample process wav file */
 int wavefmt_filter(const char *infile, const char *outfile,
                    filter_func *f, void *state, int format, double t);
 

@@ -27,6 +27,9 @@ struct circfilt_state *
 circfilt_create(int N, int Nb, int *b_indx, double *b_val,
                        int Na, int *a_indx, double *a_val);
 
+/* free state object */
+void circfilt_destroy(struct circfilt_state *s);
+
 /* decrement offset within w buffer (advance delay line by one) */
 void circfilt_dec(struct circfilt_state *s);
 
