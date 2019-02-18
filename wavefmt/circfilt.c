@@ -2,6 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * circfilt_create() - allocate and initialize a circular filter
+ * @N:      length of w
+ * @Nb:     length of b;
+ * @b_val:  b values;
+ * @b_indx: b indices;
+ * @Na:     length of a;
+ * @a_val:  a values;
+ * @a_indx: a indices;
+ *
+ * Return: the initialized state structure for the filter
+ */
 struct circfilt_state *
 circfilt_create(int N, int Nb, int *b_indx, double *b_val,
                        int Na, int *a_indx, double *a_val)
@@ -24,6 +36,26 @@ circfilt_create(int N, int Nb, int *b_indx, double *b_val,
     return s;
 }
 
+/*
+ * circfilt_destroy() - free memory allocated for circular filter
+ * @s: pointer to filter state
+ */
+void circfilt_destroy(struct circfilt_state *s)
+{
+    free(s->b_val);
+    free(s->b_indx);
+    free(s->a_val);
+    free(s->a_indx);
+    free(s->w);
+    free(s);
+}
+
+/*
+ * circfilt_dec() - decrement offset of w buffer (advance delay line by one)
+ * @s: pointer to filter state
+ *
+ * properly wrap offset so that it doesn't fall off the edge of buffer
+ */
 void circfilt_dec(struct circfilt_state *s)
 {
     s->offset--;
@@ -31,6 +63,12 @@ void circfilt_dec(struct circfilt_state *s)
         s->offset += s->N;
 }
 
+/*
+ * circfilt_inc() - increment offset of w buffer
+ * @s: pointer to filter state
+ *
+ * properly wrap offset so that it doesn't fall off the edge of buffer
+ */
 void circfilt_inc(struct circfilt_state *s)
 {
     s->offset++;
@@ -38,11 +76,25 @@ void circfilt_inc(struct circfilt_state *s)
         s->offset -= s->N;
 }
 
+/*
+ * circfilt_w() - return pointer to w[n] while handling wrapping
+ * @s: pointer to filter state
+ * @n: index into w
+ *
+ * Return: pointer to w[n]
+ */
 double * circfilt_w(struct circfilt_state *s, int n)
 {
     return s->w + ((s->offset + n) % s->N);
 }
 
+/*
+ * circfilt_procsamp() - process one sample through the canonical filter
+ * @x: input sample to process
+ * @state: pointer to the state of the filter
+ *
+ * Return: output sample
+ */
 float circfilt_procsamp(float x, void *state)
 {
     struct circfilt_state *fs = state;

@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * canfilt_create() - allocate and initialize a canonical filter
+ * @N: length of delay line w (and a and b coeeficient arrays)
+ * @b: b coefficent array (feed forward)
+ * @a: a coefficent array (feedback)
+ *
+ * Return: the initialized state structure for the filter
+ */
 struct canfilt_state *
 canfilt_create(int N, double *b, double *a)
 {
@@ -17,6 +25,25 @@ canfilt_create(int N, double *b, double *a)
     return s;
 }
 
+/*
+ * canfilt_destroy() - free memory allocated for canonical filter
+ * @s: pointer to filter state
+ */
+void canfilt_destroy(struct canfilt_state *s)
+{
+    free(s->b);
+    free(s->a);
+    free(s->w);
+    free(s);
+}
+
+/*
+ * canfilt_procsamp() - process one sample through canonical filter
+ * @x: input sample to process
+ * @state: pointer to the state of the filter
+ *
+ * Return: output sample
+ */
 float canfilt_procsamp(float x, void *state)
 {
     const struct canfilt_state *fs = state;

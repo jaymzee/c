@@ -49,7 +49,6 @@ static long read_data(struct wavefmt *fmt, const char *fn, FILE *fp)
 
 /*
  * wavefmt_read_header() - read the wavefmt RIFF header
- *
  * @fmt: pointer to the format header structure to fill
  * @fn:  filename (for better error messages)
  * @fp:  the file to read it from
@@ -190,7 +189,7 @@ int wavefmt_dump(const char *filename)
     return 0;
 }
 
-double clamp(double d, double min, double max) {
+static double clamp(double d, double min, double max) {
     const double t = d < min ? min : d;
     return t > max ? max : t;
 }

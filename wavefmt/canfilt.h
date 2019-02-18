@@ -6,14 +6,20 @@
 #include "filter.h"
 
 struct canfilt_state {
-    double *w;
-    double *a;
-    double *b;
-    int N;
+    double *w;      /* delay line */
+    double *a;      /* a coefficients - feedback */
+    double *b;      /* b coefficients - feed forward */
+    int N;          /* length of w, a, b */
 };
 
-struct canfilt_state *canfilt_create(int N, double *b, double *a);
+/* allocate and initialize state object */
+struct canfilt_state *
+canfilt_create(int N, double *b, double *a);
 
+/* free state object */
+void canfilt_destroy(struct canfilt_state *s);
+
+/* process one sample through canonical filter */
 filter_func canfilt_procsamp;
 
 #endif /* CANFILT_H */
