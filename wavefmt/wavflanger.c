@@ -17,15 +17,14 @@ float flanger_procsamp(float x, void *state)
     struct flanger *fl = state;
     struct fracdelay_state *delay = fl->delay;
     const int N = delay->N;
-    double *w = delay->w;
     double y;
     double n;
     
-    n = N * (0.5 * cos(2 * PI * fl->rate * fl->phase) + 0.5);
-    
-    w[0] = x;
+    n = (N-1) * (0.5 * cos(2 * PI * fl->rate * fl->phase) + 0.5);
 
-    y = 0.5 * x + 0.5 * fracdelay_w(delay, n);
+    *fracdelay_w0(delay) = x;
+
+    y = 0.5 * fracdelay_w(delay, N / 2) + 0.5 * fracdelay_w(delay, n);
 
     fracdelay_dec(delay);
     fl->phase += 1.0 / 44100.0;
@@ -37,9 +36,9 @@ int main(int argc, char *argv[])
 {
     struct flanger fl;
 
-    fl.rate = 1.0;
+    fl.rate = 0.125;
     fl.phase = 0.0;
-    fl.delay = fracdelay_create(1000);
+    fl.delay = fracdelay_create(200);
 
     if (argc != 3) {
         fprintf(stderr, "Usage: wavflanger infile outfile\n");

@@ -29,4 +29,7 @@ void fracdelay_inc(struct fracdelay_state *s);
 /* return w[n] while handling wrapping */
 double fracdelay_w(struct fracdelay_state *s, double n);
 
+/* return pointer to w[0] */
+double *fracdelay_w0(struct fracdelay_state *s);
+
 #endif /* FRACDELAY_H */

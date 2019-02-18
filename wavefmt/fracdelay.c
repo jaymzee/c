@@ -60,7 +60,7 @@ void fracdelay_inc(struct fracdelay_state *s)
  * @s: pointer to filter state
  * @n: index into w (must be positive or zero but can have a fractional part)
  *
- * Return: pointer to w[n]
+ * Return: w[n]
  */
 double fracdelay_w(struct fracdelay_state *s, double n)
 {
@@ -71,3 +71,13 @@ double fracdelay_w(struct fracdelay_state *s, double n)
     return (1.0 - f) * wa + f * wb;
 }
 
+/*
+ * fracdelay_w0() - return pointer to w[0]
+ * @s: pointer to filter state
+ *
+ * Return: pointer to w[n]
+ */
+double *fracdelay_w0(struct fracdelay_state *s)
+{
+    return s->w + s->offset;
+}
