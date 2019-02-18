@@ -60,6 +60,8 @@ void fracdelay_inc(struct fracdelay_state *s)
  * @s: pointer to filter state
  * @n: index into w (must be positive or zero but can have a fractional part)
  *
+ * if there is a fractional part to n, linearly interpolate the samples
+ *
  * Return: w[n]
  */
 double fracdelay_w(struct fracdelay_state *s, double n)
