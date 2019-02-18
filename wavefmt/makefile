@@ -5,7 +5,7 @@ LFLAGS = -s
 all: wavdump wavwrite wavreverb wavcanfilt wavflanger
 
 wavflanger: wavflanger.o wavefmt.o fracdelay.o
-	$(CC) -o $@ $^ $(LFLAGS)
+	$(CC) -o $@ $^ -lm $(LFLAGS)
 wavcanfilt: wavcanfilt.o wavefmt.o canfilt.o
 	$(CC) -o $@ $^ $(LFLAGS)
 wavreverb: wavreverb.o wavefmt.o circfilt.o
