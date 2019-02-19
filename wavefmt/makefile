@@ -1,8 +1,9 @@
 CC = gcc
 CFLAGS = -O2 -std=c89 -pedantic -Wall
 LFLAGS = -s
+OBJS = wavdump wavwrite wavreverb wavcanfilt wavflanger
 
-all: wavdump wavwrite wavreverb wavcanfilt wavflanger
+all: $(OBJS)
 
 wavflanger: wavflanger.o wavefmt.o fracdelay.o
 	$(CC) -o $@ $^ -lm $(LFLAGS)
@@ -33,4 +34,4 @@ wavefmt.o: wavefmt.c wavefmt.h
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f *.o wavdump wavwrite wavcanfilt wavreverb wavflanger
+	rm -f *.o $(OBJS)
