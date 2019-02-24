@@ -16,8 +16,8 @@ class CircularFilter {
     std::vector<double> w;          /* delay line */
     int offset;                     /* current start of buffer within w */
 public:
-    std::map<int, double> a;        /* feedback coefficients */
     std::map<int, double> b;        /* feedforward coefficients */
+    std::map<int, double> a;        /* feedback coefficients */
     CircularFilter(int length);
     CircularFilter& operator--();   /* advance delay line by one sample */
     CircularFilter& operator++();   /* retreat delay line by one sample */

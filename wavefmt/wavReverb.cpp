@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     fs.b[3500] = 0.4;
     fs.a[3000] = 0.6;
 
-    return wavefmt_filter(argv[1], argv[2], CircularFilter::procsamp, &fs,
+    return wavefmt_filter(argv[1], argv[2], 
+                          CircularFilter::procsamp, &fs,
                           WAVEFMT_PCM, 2.0); 
 }

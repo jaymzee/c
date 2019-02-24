@@ -3,10 +3,12 @@ CXX = g++
 CFLAGS = -O2 -std=c89 -pedantic -Wall
 CXXFLAGS = -O2 -std=c++11 -pedantic -Wall
 LFLAGS = -s
-OBJS = wavdump wavwrite wavreverb wavcanfilt wavflanger wavFlanger wavReverb
+OBJS = wavdump wavwrite wavreverb wavcanfilt wavflanger wavFlanger wavReverb wavCanFilt
 
 all: $(OBJS)
 
+wavCanFilt: wavCanFilt.o wavefmt.o CanonicalFilter.o
+	$(CXX) -o $@ $^ -lm $(LFLAGS)
 wavReverb: wavReverb.o wavefmt.o CircularFilter.o
 	$(CXX) -o $@ $^ -lm $(LFLAGS)
 wavFlanger: wavFlanger.o wavefmt.o Delay.o
@@ -23,6 +25,9 @@ wavdump: wavdump.o wavefmt.o
 	$(CC) -o $@ $^ $(LFLAGS)
 
 
+
+CanonicalFilter.o: CanonicalFilter.cpp CanonicalFilter.h
+	$(CXX) $(CXXFLAGS) -c $<
 CircularFilter.o: CircularFilter.cpp CircularFilter.h
 	$(CXX) $(CXXFLAGS) -c $<
 wavFlanger.o: wavFlanger.cpp wavefmt.h Delay.h
