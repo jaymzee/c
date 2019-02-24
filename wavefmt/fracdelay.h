@@ -20,7 +20,7 @@ fracdelay_create(int N);
 /* free state object */
 void fracdelay_destroy(struct fracdelay_state *s);
 
-/* decrement offset within w buffer (advance delay line by one) */
+/* decrement offset within w buffer (advance delay line by one sample) */
 void fracdelay_dec(struct fracdelay_state *s);
 
 /* increment offset within w buffer */

@@ -30,7 +30,8 @@ void fracdelay_destroy(struct fracdelay_state *s)
 }
 
 /*
- * fracdelay_dec() - decrement offset of w buffer (advance delay line by one)
+ * fracdelay_dec() - decrement offset of w buffer 
+ *                   (advance delay line by one sample)
  * @s: pointer to filter state
  *
  * properly wrap offset so that it doesn't fall off the edge of buffer
@@ -60,7 +61,7 @@ void fracdelay_inc(struct fracdelay_state *s)
  * @s: pointer to filter state
  * @n: index into w (must be positive or zero but can have a fractional part)
  *
- * if there is a fractional part to n, linearly interpolate the samples
+ * since there is a fractional part to n, linearly interpolate the samples
  *
  * Return: w[n]
  */
