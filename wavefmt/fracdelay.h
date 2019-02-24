@@ -5,8 +5,6 @@
  * circular buffer implementation of a fractional delay line 
  */
 
-#include "filter.h"
-
 struct fracdelay_state {
     double *w;      /* delay line */
     int N;          /* length of w */

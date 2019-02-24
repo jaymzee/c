@@ -1,10 +1,14 @@
 CC = gcc
+CXX = g++
 CFLAGS = -O2 -std=c89 -pedantic -Wall
+CXXFLAGS = -O2 -std=c++11 -pedantic -Wall
 LFLAGS = -s
-OBJS = wavdump wavwrite wavreverb wavcanfilt wavflanger
+OBJS = wavdump wavwrite wavreverb wavcanfilt wavflanger wavFlanger
 
 all: $(OBJS)
 
+wavFlanger: wavFlanger.o wavefmt.o Delay.o
+	$(CXX) -o $@ $^ -lm $(LFLAGS)
 wavflanger: wavflanger.o wavefmt.o fracdelay.o
 	$(CC) -o $@ $^ -lm $(LFLAGS)
 wavcanfilt: wavcanfilt.o wavefmt.o canfilt.o
@@ -16,6 +20,13 @@ wavwrite: wavwrite.o wavefmt.o
 wavdump: wavdump.o wavefmt.o
 	$(CC) -o $@ $^ $(LFLAGS)
 
+
+wavFlanger.o: wavFlanger.cpp wavefmt.h Delay.h
+	$(CXX) $(CXXFLAGS) -c $<
+Delay.o: Delay.cpp Delay.h
+	$(CXX) $(CXXFLAGS) -c $<
+wavflanger.o: wavflanger.c wavefmt.h fracdelay.h
+	$(CC) $(CFLAGS) -c $<
 wavcanfilt.o: wavcanfilt.c wavefmt.h canfilt.h
 	$(CC) $(CFLAGS) -c $<
 wavreverb.o: wavreverb.c wavefmt.h circfilt.h
