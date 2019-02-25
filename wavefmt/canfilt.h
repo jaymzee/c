@@ -9,12 +9,12 @@ struct canfilt_state {
     double *w;      /* delay line */
     double *a;      /* a coefficients - feedback */
     double *b;      /* b coefficients - feed forward */
-    int N;          /* length of w, a, b */
+    unsigned N;     /* length of w, a, b */
 };
 
 /* allocate and initialize state object */
 struct canfilt_state *
-canfilt_create(int N, double *b, double *a);
+canfilt_create(unsigned N, double *b, double *a);
 
 /* free state object */
 void canfilt_destroy(struct canfilt_state *s);

@@ -11,7 +11,7 @@
  * Return: the initialized state structure for the filter
  */
 struct canfilt_state *
-canfilt_create(int N, double *b, double *a)
+canfilt_create(unsigned N, double *b, double *a)
 {
     struct canfilt_state *s;
     s = malloc(sizeof(struct canfilt_state));
@@ -47,13 +47,11 @@ void canfilt_destroy(struct canfilt_state *s)
 float canfilt_procsamp(float x, void *state)
 {
     const struct canfilt_state *fs = state;
-    const int N = fs->N;
+    unsigned n, N = fs->N;
     double *w = fs->w;
     double *a = fs->a;
     double *b = fs->b;
-    double y;
-    double w0;
-    int n;
+    double y, w0;
 
     w0 = x;
     for (n = 1; n < N; n++)

@@ -2,10 +2,10 @@
 #include "circfilt.h"
 #include <stdio.h>
 
-int    b_indx[2] = {1, 3500};
-double b_val[2]  = {0.4, 0.4};
-int    a_indx[1] = {3000};
-double a_val[1]  = {0.6};
+unsigned b_indx[2] = {1, 3500};
+double   b_val[2]  = {0.4, 0.4};
+unsigned a_indx[1] = {3000};
+double   a_val[1]  = {0.6};
 
 int main(int argc, char *argv[])
 {

@@ -15,8 +15,8 @@
  * Return: the initialized state structure for the filter
  */
 struct circfilt_state *
-circfilt_create(int N, int Nb, int *b_indx, double *b_val,
-                       int Na, int *a_indx, double *a_val)
+circfilt_create(unsigned N, unsigned Nb, unsigned *b_indx, double *b_val,
+                            unsigned Na, unsigned *a_indx, double *a_val)
 {
     struct circfilt_state *s;
     s = malloc(sizeof(struct circfilt_state));
@@ -83,7 +83,7 @@ void circfilt_inc(struct circfilt_state *s)
  *
  * Return: pointer to w[n]
  */
-double * circfilt_w(struct circfilt_state *s, int n)
+double * circfilt_w(struct circfilt_state *s, unsigned n)
 {
     return s->w + ((s->offset + n) % s->N);
 }
@@ -100,7 +100,7 @@ float circfilt_procsamp(float x, void *state)
     struct circfilt_state *fs = state;
     double y;
     double w0;
-    int n;
+    unsigned n;
 
     w0 = x;
     for (n = 0; n < fs->Na; n++)

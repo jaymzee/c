@@ -7,13 +7,12 @@
 
 struct fracdelay_state {
     double *w;      /* delay line */
-    int N;          /* length of w */
-    int offset;     /* current start of buffer within w */
+    unsigned N;          /* length of w */
+    unsigned offset;     /* current start of buffer within w */
 };
 
 /* allocate and initialize */
-struct fracdelay_state *
-fracdelay_create(int N);
+struct fracdelay_state *fracdelay_create(unsigned N);
 
 /* free state object */
 void fracdelay_destroy(struct fracdelay_state *s);
