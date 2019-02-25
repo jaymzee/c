@@ -3,7 +3,7 @@
  * CircularFilter::CircularFilter() - construct a CircularFilter
  * @length: length of delay line
  */
-CircularFilter::CircularFilter(int length) : w(length), offset(0)
+CircularFilter::CircularFilter(unsigned length) : w(length), offset(0)
 {
 }
 
@@ -26,7 +26,7 @@ CircularFilter& CircularFilter::operator--()
  */
 CircularFilter& CircularFilter::operator++()
 {
-    const int N = w.size();
+    unsigned N = w.size();
     if (++offset > N)
         offset -= N;
     return *this;
@@ -37,7 +37,7 @@ CircularFilter& CircularFilter::operator++()
  *
  * Return: reference to w[n]
  */
-double& CircularFilter::operator[](int n)
+double& CircularFilter::operator[](unsigned n)
 {
     return w[(offset + n) % w.size()];
 }
@@ -45,7 +45,7 @@ double& CircularFilter::operator[](int n)
 /*
  * CircularFilter::length() - length of delay line
  */
-int CircularFilter::length()
+unsigned CircularFilter::length()
 {
     return w.size();
 }

@@ -14,15 +14,15 @@
 
 class CircularFilter {
     std::vector<double> w;          /* delay line */
-    int offset;                     /* current start of buffer within w */
+    unsigned offset;                /* current start of buffer within w */
 public:
-    std::map<int, double> b;        /* feedforward coefficients */
-    std::map<int, double> a;        /* feedback coefficients */
-    CircularFilter(int length);
+    std::map<unsigned, double> b;   /* feedforward coefficients */
+    std::map<unsigned, double> a;   /* feedback coefficients */
+    CircularFilter(unsigned length);
     CircularFilter& operator--();   /* advance delay line by one sample */
     CircularFilter& operator++();   /* retreat delay line by one sample */
-    double& operator[](int n);      /* reference to w[n] */
-    int length();                   /* length of delay line */
+    double& operator[](unsigned n); /* reference to w[n] */
+    unsigned length();              /* length of delay line */
     static filter_func procsamp;    /* process one sample through filter */
 };
 

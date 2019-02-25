@@ -4,7 +4,7 @@
  * Delay::Delay() - construct a fractional delay line 
  * @length: length of delay line
  */
-Delay::Delay(int length) : w(length), offset(0)
+Delay::Delay(unsigned length) : w(length), offset(0)
 {
 }
 
@@ -27,7 +27,7 @@ Delay& Delay::operator--()
  */
 Delay& Delay::operator++()
 {
-    const int N = w.size();
+    unsigned N = w.size();
     if (++offset > N)
         offset -= N;
     return *this;
@@ -44,8 +44,8 @@ Delay& Delay::operator++()
 double Delay::operator[](double n)
 {
     double w1, w2, f;
-    const int N = w.size();
-    const int first = (int)n;
+    unsigned N = w.size();
+    int first = (int)n;
 
     w1 = w[(offset + first) % N];
     w2 = w[(offset + first + 1) % N];
@@ -67,7 +67,7 @@ double& Delay::operator[](int n)
 /*
  * Delay::length() - length of delay line
  */
-int Delay::length()
+unsigned Delay::length()
 {
     return w.size();
 }

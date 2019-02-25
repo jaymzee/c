@@ -18,7 +18,7 @@ float flanger_procsamp(float x, void *state)
 {
     Flanger &fl = *(Flanger *)state;
     Delay &delay = fl.delay;
-    const int N = delay.length();
+    int N = delay.length();
     double n = (N-1) * (0.5 * cos(2 * PI * fl.rate * fl.phase) + 0.5);
     double y;
 
