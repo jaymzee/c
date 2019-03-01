@@ -8,12 +8,12 @@
  */
 
 class Delay {
-    std::vector<double> w;  /* delay line */
+    std::vector<double> w;       /* delay line */
     unsigned offset;             /* current start of buffer within w */
 public:
     Delay(unsigned length);
-    Delay& operator--();    /* (advance delay line by one sample) */
-    Delay& operator++();    /* (retreat delay line by one sample) */
+    Delay& operator--();         /* (advance delay line by one sample) */
+    Delay& operator++();         /* (retreat delay line by one sample) */
     double operator[](double n); /* interpolate w[n] */
     double& operator[](int n);   /* reference to w[n] */
     unsigned length();           /* length of delay line */

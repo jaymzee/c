@@ -8,9 +8,9 @@
 
 class CanonicalFilter {
 public:
-    std::vector<double> w;  /* delay line */
-    std::vector<double> b;  /* b coefficients - feed forward */
-    std::vector<double> a;  /* a coefficients - feedback */
+    std::vector<double> w;       /* delay line */
+    std::vector<double> b;       /* b coefficients - feed forward */
+    std::vector<double> a;       /* a coefficients - feedback */
     static filter_func procsamp; /* process one sample through filter */
 };
 
