@@ -1,9 +1,10 @@
 #include "wavefmt.h"
 #include "fracdelay.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
-#define PI 3.141592654
+#define PI 3.14159265358979323846
 
 struct flanger
 {
@@ -35,16 +36,18 @@ float flanger_procsamp(float x, void *state)
 int main(int argc, char *argv[])
 {
     struct flanger fl;
+    int rv;
+
+    if (argc != 3) {
+        fprintf(stderr, "Usage: wavflanger infile outfile\n");
+        return EXIT_FAILURE;
+    }
 
     fl.rate = 0.125;
     fl.phase = 0.0;
     fl.delay = fracdelay_create(200);
+    rv = wavefmt_filter(argv[1], argv[2], flanger_procsamp, &fl,
+                        WAVEFMT_PCM, 0.0);
 
-    if (argc != 3) {
-        fprintf(stderr, "Usage: wavflanger infile outfile\n");
-        return -1;
-    }
-
-    return wavefmt_filter(argv[1], argv[2], flanger_procsamp, &fl,
-                          WAVEFMT_PCM, 0.0); 
+    return rv == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

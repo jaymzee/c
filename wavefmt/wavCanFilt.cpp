@@ -3,6 +3,7 @@ extern "C" {
 }
 #include "CanonicalFilter.h"
 #include <cstdio>
+#include <cstdlib>
 
 CanonicalFilter fs = {
     {0.0, 0.0, 0.0},    //w
@@ -14,17 +15,12 @@ int main(int argc, char *argv[])
 {
     if (argc != 3) {
         fprintf(stderr, "Usage: filter infile outfile\n");
-        return -1;
+        return EXIT_FAILURE;
     }
 
-    for (double x : fs.w)
-        printf("w: %g\n", x);
-    for (double x : fs.b)
-        printf("b: %g\n", x);
-    for (double x : fs.a)
-        printf("a: %g\n", x);
+    int rv = wavefmt_filter(argv[1], argv[2], 
+                            CanonicalFilter::procsamp, &fs,
+                            WAVEFMT_PCM, 0.0);
 
-    return wavefmt_filter(argv[1], argv[2], 
-                          CanonicalFilter::procsamp, &fs,
-                          WAVEFMT_PCM, 0.0); 
+    return rv == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

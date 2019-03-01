@@ -1,5 +1,6 @@
 #include "wavefmt.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
 
@@ -106,5 +107,5 @@ int main()
     }
     fclose(fp);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
