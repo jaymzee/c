@@ -13,7 +13,7 @@
 #include <map>
 
 class CircularFilter {
-    std::vector<double> w;          /* delay line */
+    std::vector<double> w;          /* delay line buffer */
     unsigned offset;                /* current start of buffer within w */
 public:
     std::map<unsigned, double> b;   /* feedforward coefficients */
@@ -21,7 +21,7 @@ public:
     CircularFilter(unsigned length);
     CircularFilter& operator--();   /* advance delay line by one sample */
     CircularFilter& operator++();   /* retreat delay line by one sample */
-    double& operator[](unsigned n); /* reference to w[n] */
+    double& operator[](unsigned n); /* reference to tap[n] */
     unsigned length();              /* length of delay line */
     static filter_func procsamp;    /* process one sample through filter */
 };

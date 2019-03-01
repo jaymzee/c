@@ -34,12 +34,12 @@ Delay& Delay::operator++()
 }
 
 /*
- * Delay::operator[](double) - interpolate w[n] while handling wrapping
- * @n: index into delay line, must be >= 0 but may have a fractional part
+ * Delay::operator[](double) - interpolate tap[n]
+ * @n: index of delay line tap, must be >= 0 but may have a fractional part
  *
  * since there is a fractional part to n, linearly interpolate the samples
  *
- * Return: w[n]
+ * Return: tap[n] (offset within and modulo wrap w)
  */
 double Delay::operator[](double n)
 {
@@ -54,10 +54,10 @@ double Delay::operator[](double n)
 }
 
 /*
- * Delay::operator[](int) - reference w[n] while handling wrapping
- * @n: index into delay line
+ * Delay::operator[](int) - reference tap[n]
+ * @n: index of delay line tap
  *
- * Return: reference to w[n]
+ * Return: reference to w[n] (offset within and modulo wrap w)
  */
 double& Delay::operator[](int n)
 {

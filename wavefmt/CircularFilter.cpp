@@ -33,9 +33,9 @@ CircularFilter& CircularFilter::operator++()
 }
 
 /*
- * CircularFilter::operator[]() - reference w[n] while handling wrapping
+ * CircularFilter::operator[]() - reference tap[n]
  *
- * Return: reference to w[n]
+ * Return: reference to tap[n] (offset and modulo wrap of w)
  */
 double& CircularFilter::operator[](unsigned n)
 {
