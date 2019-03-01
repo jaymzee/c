@@ -11,12 +11,13 @@ extern "C" {
 
 struct Flanger
 {
-    double rate;
-    double phase;
-    Delay tap;
+    double rate;    //rate of flanger
+    double phase;   //current phase of flanger (time)
+    Delay tap;      //delay line
+    static filter_func procsamp; //process one sample
 };
 
-float flanger_procsamp(float x, void *state)
+float Flanger::procsamp(float x, void *state)
 {
     Flanger &fl = *(Flanger *)state;
     const int N = fl.tap.length();
@@ -40,7 +41,7 @@ int main(int argc, char *argv[])
 
     Flanger fl = {0.125, 0.0, Delay(200)};
     int rv = wavefmt_filter(argv[1], argv[2],
-                            flanger_procsamp, &fl,
+                            Flanger::procsamp, &fl,
                             WAVEFMT_PCM, 0.0);
 
     return rv == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
