@@ -14,7 +14,7 @@ CanonicalFilter fs = {
 int main(int argc, char *argv[])
 {
     if (argc != 3) {
-        fprintf(stderr, "Usage: filter infile outfile\n");
+        fprintf(stderr, "Usage: wavCanFilt infile outfile\n");
         return EXIT_FAILURE;
     }
 

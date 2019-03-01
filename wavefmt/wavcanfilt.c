@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     int rv;
     
     if (argc != 3) {
-        fprintf(stderr, "Usage: filter infile outfile\n");
+        fprintf(stderr, "Usage: wavcanfilt infile outfile\n");
         return EXIT_FAILURE;
     }
 
