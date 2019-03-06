@@ -1,3 +1,5 @@
+#include "common.S"
+
 	.global	_start
 	.data
 msg:
@@ -5,12 +7,5 @@ msg:
 	msglen = . - msg
 	.text
 _start:
-	mov	$1,%rax		# use the write syscall
-	mov	$1,%rdi		# write to stdout
-	mov	$msg,%rsi	# use string "Hello World"
-	mov	$msglen,%rdx	# write 12 characters
-	syscall			# make syscall
-
-	mov	$60,%rax	# use the _exit syscall
-	mov	$0,%rdi		# error code 0
-	syscall			# make syscall
+	write	$1, $msg, $msglen
+	exit	$0
