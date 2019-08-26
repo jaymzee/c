@@ -1,14 +1,18 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define LENGTH (sizeof(array) / sizeof(*array))
+#define ANSI 1
+
 char array[] = {
-    'q','w','e','r','t','y','u','i','o','p','7','3',
-    'a','s','d','f','g','h','j','k','l','5','1','9',
-    'z','x','c','v','b','n','m','4','2','8','6'
+    '!','@','#','$','%','^','&','*','(',')','_','=',       '/','~','-',
+     'q','w','e','r','t','y','u','i','o','p','[',']',  '7','8','9','+',
+      'a','s','d','f','g','h','j','k','l',';','"',     '4','5','6',
+       'z','x','c','v','b','n','m','<','>','?',        '1','2','3','0'
 };
 
-#define LENGTH sizeof(array) / sizeof(*array)
-#define ANSI 1
+const char ruler[] = "012345678911234567892123456789312345678941234"
+                     "56789512345678";
 
 void print_array(int lo, int hi, int p)
 {
@@ -32,16 +36,10 @@ void print_array(int lo, int hi, int p)
 
 bool is_sorted(char *n, int lo, int hi)
 {
-    bool sorted = true;
-
-    for (int i = lo; i < hi; i++) {
-        if (n[i] > n[i + 1]) {
-            sorted = false;
-            break;
-        }
-    }
-
-    return sorted;
+    for (int i = lo; i < hi; i++)
+        if (n[i] > n[i + 1])
+            return  false;
+    return true;
 }
 
 int partition(char *n, int lo, int hi)
@@ -78,7 +76,7 @@ void quicksort(char *n, int lo, int hi)
 int main()
 {
     printf("quicksort demonstration\n\n");
-    printf("01234567891123456789212345678931234\n");
+    puts(ruler);
     print_array(-1, -1, -1);
     quicksort(array, 0, LENGTH - 1);
     
