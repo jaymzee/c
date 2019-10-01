@@ -38,9 +38,9 @@ void fracdelay_destroy(struct fracdelay_state *s)
  */
 void fracdelay_dec(struct fracdelay_state *s)
 {
+    if (s->offset == 0)
+        s->offset = s->N; 
     s->offset--;
-    if (s->offset < 0)
-        s->offset += s->N;
 }
 
 /*
