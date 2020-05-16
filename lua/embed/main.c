@@ -1,8 +1,9 @@
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 
-static int c_swap (lua_State *L) {
+int c_swap(lua_State *L)
+{
     //check and fetch the arguments
     double arg1 = luaL_checknumber (L, 1);
     double arg2 = luaL_checknumber (L, 2);
@@ -15,7 +16,8 @@ static int c_swap (lua_State *L) {
     return 2;
 }
 
-int main(){
+int main()
+{
     // Create new Lua state and load the lua libraries
     lua_State *L = luaL_newstate();
     luaL_openlibs(L);

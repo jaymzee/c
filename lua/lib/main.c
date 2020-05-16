@@ -1,12 +1,13 @@
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 #include <math.h>
 
-static int c_swap (lua_State *L) {
+int c_swap(lua_State *L)
+{
     //check and fetch the arguments
-    double arg1 = luaL_checknumber (L, 1);
-    double arg2 = luaL_checknumber (L, 2);
+    double arg1 = luaL_checknumber(L, 1);
+    double arg2 = luaL_checknumber(L, 2);
 
     //push the results
     lua_pushnumber(L, arg2);
@@ -16,21 +17,28 @@ static int c_swap (lua_State *L) {
     return 2;
 }
 
-static int my_sin (lua_State *L) {
-    double arg = luaL_checknumber (L, 1);
+int my_sin(lua_State *L)
+{
+    //check and fetch the arguments
+    double arg = luaL_checknumber(L, 1);
+
+    //push the results
     lua_pushnumber(L, sin(arg));
+
+    //return number of results
     return 1;
 }
 
 //library to be registered
-static const struct luaL_Reg mylib [] = {
-      {"c_swap", c_swap},
-      {"mysin", my_sin}, /* names can be different */
-      {NULL, NULL}  /* sentinel */
-    };
+struct luaL_Reg mylib[]  = {
+    {"c_swap", c_swap},
+    {"mysin", my_sin}, /* names can be different */
+    {NULL, NULL}  /* sentinel */
+};
 
 //name of this function is not flexible
-int luaopen_mylib (lua_State *L){
+int luaopen_mylib(lua_State *L)
+{
     luaL_newlib(L, mylib);
     return 1;
 }
