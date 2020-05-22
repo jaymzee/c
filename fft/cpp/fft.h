@@ -4,15 +4,19 @@
 #include <cmath>
 #include <complex>
 
+template <class T>
+inline std::complex<T> twiddle(int N)
+{
+    return exp(std::complex<T>{0, (T)(2.0 * M_PI / N)});
+}
+
 /* Discrete Fourier Transform
     N^2 time complexity
 */
-
 template <class T>
 void dft(std::complex<T> *X, const std::complex<T> *x, const int N)
 {
-    const std::complex<T> I(0, 1);
-    const std::complex<T> W_N = exp(-I * (2 * M_PI / N));
+    const std::complex<T> W_N = twiddle<T>(-N);
     std::complex<T> W_k = 1, sum, W;
     for (int k = 0; k < N; k++, W_k *= W_N) {
         sum = 0;
@@ -30,8 +34,7 @@ void dft(std::complex<T> *X, const std::complex<T> *x, const int N)
 template <class T>
 void idft(std::complex<T> *x, const std::complex<T> *X, const int N)
 {
-    const std::complex<T> I(0, 1);
-    const std::complex<T> W_N = exp(I * (2 * M_PI / N));
+    const std::complex<T> W_N = twiddle<T>(N);
     std::complex<T> W_k = 1, sum, W;
     for (int k = 0; k < N; k++, W_k *= W_N) {
         sum = 0;
@@ -61,8 +64,7 @@ void fft_r(std::complex<T> *X, const std::complex<T> *x,
     fft_r(X,       x,     N/2, 2*s); // X[0]...X[N/2-1] <- DFT(evenish of x)
     fft_r(X + N/2, x + s, N/2, 2*s); // X[N/2]...X[N-1] <- DFT(oddish of x)
 
-    const std::complex<T> I(0, 1);
-    const std::complex<T> W_N = exp(-I * (2 * M_PI / N));
+    const std::complex<T> W_N = twiddle<T>(-N);
     std::complex<T> W = 1;
     for (int k = 0; k < N/2; k++, W *= W_N) {
         std::complex<T> t = X[k];
@@ -103,8 +105,7 @@ void ifft_r(std::complex<T> *x, const std::complex<T> *X,
     ifft_r(x,       X,     N/2, 2*s); // x[0]...x[N/2-1] <- IDFT(evenish of X)
     ifft_r(x + N/2, X + s, N/2, 2*s); // x[N/2]...x[N-1] <- IDFT(oddish of X)
 
-    const std::complex<T> I(0, 1);
-    const std::complex<T> W_N = exp(I * (2 * M_PI / N));
+    const std::complex<T> W_N = twiddle<T>(N);
     std::complex<T> W = 1;
     for (int k = 0; k < N/2; k++, W *= W_N) {
         std::complex<T> t = x[k];
@@ -179,8 +180,7 @@ void fft_iter(std::complex<T> *x, const int N)
 
     for (int s = 1; s <= log2N; ++s) {
         const int m = 1 << s;  // 2^s
-        const std::complex<T> I(0, 1);
-        const std::complex<T> W_m = exp(-I * (2 * M_PI / m));
+        const std::complex<T> W_m = twiddle<T>(-m);
         for (int k = 0; k < N; k += m) {
             W = 1;
             for (int j = 0; j < m/2; ++j, W *= W_m) {
@@ -209,7 +209,7 @@ void ifft_iter(std::complex<T> *X, const int N)
     for (int s = 1; s <= log2N; ++s) {
         const int m = 1 << s;  // 2^s
         const std::complex<T> I(0, 1);
-        const std::complex<T> W_m = exp(I * (2 * M_PI / m));
+        const std::complex<T> W_m = twiddle<T>(m);
         for (int k = 0; k < N; k += m) {
             W = 1;
             for (int j = 0; j < m/2; ++j, W *= W_m) {

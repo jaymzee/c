@@ -4,6 +4,7 @@
 #include "util.h"
 
 #define V_SIZE 8
+
 std::complex<double> x[V_SIZE] = {1,2,3,4,3,2,1,0};
 std::complex<double> X[V_SIZE];
 
