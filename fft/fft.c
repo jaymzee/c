@@ -129,9 +129,24 @@ static unsigned int reverse_bits(register unsigned int x, int w)
 /* array length N must be a power of 2 */
 void shuffle(double complex *out, const double complex *in, const int N)
 {
-    int n = log2(N);
-    for (int k = 0; k < N; ++k) {
-        out[reverse_bits(k, n)] = in[k];
+    int w = log2(N);
+
+    if (out != in) {
+        // assume distinct non-overlapping arrays
+        for (int k = 0; k < N; ++k) {
+            out[reverse_bits(k, w)] = in[k];
+        }
+    } else {
+        // out and in are the same array
+        for (int a = 0; a < N; ++a) {
+            int b = reverse_bits(a, w);
+            if (a < b) {
+                // swap out[b] with out[a]
+                double complex t = out[b];
+                out[b] = out[a];
+                out[a] = t;
+            }
+        }
     }
 }
 
