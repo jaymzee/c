@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c99 -pedantic-errors -Wall
+CFLAGS = -std=c99 -pedantic-errors -Wall -O3
 LFLAGS = -lm
 OBJS = benchmark.o test.o fft.o util.o
 

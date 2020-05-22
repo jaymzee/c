@@ -25,11 +25,12 @@ void print_complex(double complex x, char format)
     }
 }
 
-void print_complex_array(double complex *x, int length, char *name, int fmt)
+void print_complex_array(double complex *x, int length,
+                         const char *name, char format)
 {
     for (int n = 0; n < length; n++) {
         printf("%s[%d] = ", name, n);
-        print_complex(x[n], fmt);
+        print_complex(x[n], format);
         printf("\n");
     }
 }
