@@ -9,34 +9,34 @@
 /* Discrete Fourier Transform
     N^2 time complexity
 */
-void dft(double complex *out, const double complex *in, const int N)
+void dft(double complex *X, const double complex *x, const int N)
 {
     const double complex W_N = cexp(-I * 2 * M_PI / N);
-    double complex W_k = 1;
+    double complex W_k = 1, sum, W;
     for (int k = 0; k < N; k++, W_k *= W_N) {
-        double complex sum = 0;
-        double complex W = 1;
+        sum = 0;
+        W = 1;
         for (int n = 0; n < N; n++, W *= W_k) {
-            sum += in[n] * W;
+            sum += x[n] * W;
         }
-        out[k] = sum;
+        X[k] = sum;
     }
 }
 
 /* Inverse Discrete Fourier Transform
     N^2 time complexity
 */
-void idft(double complex *out, const double complex *in, const int N)
+void idft(double complex *x, const double complex *X, const int N)
 {
     const double complex W_N = cexp(I * 2 * M_PI / N);
-    double complex W_k = 1;
+    double complex W_k = 1, sum, W;
     for (int k = 0; k < N; k++, W_k *= W_N) {
-        double complex sum = 0;
-        double complex W = 1;
+        sum = 0;
+        W = 1;
         for (int n = 0; n < N; n++, W *= W_k) {
-            sum += in[n] * W;
+            sum += X[n] * W;
         }
-        out[k] = sum / N;
+        x[k] = sum / N;
     }
 }
 
@@ -47,14 +47,14 @@ void idft(double complex *out, const double complex *in, const int N)
     s stride
 */
 static void
-fft1(double complex *X, const double complex *x, const int N, const int s)
+fft_r(double complex *X, const double complex *x, const int N, const int s)
 {
     if (N == 1) {
         X[0] = x[0];
         return;
     }
-    fft1(X,       x,     N/2, 2 * s); // X[0]...X[N/2-1] <- DFT(evenish of x)
-    fft1(X + N/2, x + s, N/2, 2 * s); // X[N/2]...X[N-1] <- DFT(oddish of x)
+    fft_r(X,       x,     N/2, 2*s); // X[0]...X[N/2-1] <- DFT(evenish of x)
+    fft_r(X + N/2, x + s, N/2, 2*s); // X[N/2]...X[N-1] <- DFT(oddish of x)
     const double complex W_N = cexp(-I * 2 * M_PI / N);
     double complex W = 1;
     for (int k = 0; k < N/2; k++, W *= W_N) {
@@ -72,28 +72,26 @@ fft1(double complex *X, const double complex *x, const int N, const int s)
     x input array
     N array length, must be a power of 2
 */
-void fft(double complex *X, const double complex *x, const int N)
+void fft_rec(double complex *X, const double complex *x, const int N)
 {
-    fft1(X, x, N, 1);
+    fft_r(X, x, N, 1);
 }
 
 /* Inverse Fast Fourier Transform (recursion)
-    recursive, decimation in time
-
     X output array
     x input array
     N array length, must be a power of 2
     s stride
 */
 static void
-ifft1(double complex *x, const double complex *X, const int N, const int s)
+ifft_r(double complex *x, const double complex *X, const int N, const int s)
 {
     if (N == 1) {
         x[0] = X[0];
         return;
     }
-    ifft1(x,       X,     N/2, 2 * s); // x[0]...x[N/2-1] <- IDFT(evenish of X)
-    ifft1(x + N/2, X + s, N/2, 2 * s); // x[N/2]...x[N-1] <- IDFT(oddish of X)
+    ifft_r(x,       X,     N/2, 2*s); // x[0]...x[N/2-1] <- IDFT(evenish of X)
+    ifft_r(x + N/2, X + s, N/2, 2*s); // x[N/2]...x[N-1] <- IDFT(oddish of X)
     const double complex W_N = cexp(I * 2 * M_PI / N);
     double complex W = 1;
     for (int k = 0; k < N/2; k++, W *= W_N) {
@@ -104,14 +102,14 @@ ifft1(double complex *x, const double complex *X, const int N, const int s)
 }
 
 /* Inverse Fast Fourier Transform (wrapper)
-    recursive, decimation in time
+    recursive
 
     X output array
     N array length, must be a power of 2
 */
-void ifft(double complex *x, const double complex *X, const int N)
+void ifft_rec(double complex *x, const double complex *X, const int N)
 {
-    ifft1(x, X, N, 1);
+    ifft_r(x, X, N, 1);
     for (int n = 0; n < N; n++) {
         x[n] /= N;
     }
@@ -138,56 +136,59 @@ void shuffle(double complex *out, const double complex *in, const int N)
 }
 
 /* Fast Fourier Transfrom
-    iterative, in place, and decimation in time
+    iterative, in place
+    N log N time complexity
 
-    A complex array
-    N array length must be a power of 2 
+    x complex array
+    N array length must be a power of 2
 */
-void fft_iter_ip(double complex *A, const int N)
+void fft_iter(double complex *x, const int N)
 {
     const int log2N = log2(N);
+    double complex W, t, u;
 
     for (int s = 1; s <= log2N; ++s) {
         const int m = 1 << s;  // 2^s
         const double complex W_m = cexp(-I * 2 * M_PI / m);
         for (int k = 0; k < N; k += m) {
-            double complex W = 1;
-            for (int j = 0; j < m / 2; ++j, W *= W_m) {
-                double complex t = W * A[k + j + m / 2];
-                double complex u = A[k + j];
-                A[k + j] = u + t;
-                A[k + j + m / 2] = u - t;
+            W = 1;
+            for (int j = 0; j < m/2; ++j, W *= W_m) {
+                t = x[k + j];
+                u = W * x[k + j + m/2];
+                x[k + j] = t + u;
+                x[k + j + m/2] = t - u;
             }
         }
     }
 }
 
 /* Inverse Fast Fourier Transfrom
-    decimation in time, iterative, and in place
-    N log(N) time complexity
+    iterative, in place
+    N log N time complexity
 
-    A complex array
+    X complex array
     N array length must be a power of 2
 */
-void ifft_iter_ip(double complex *A, const int N)
+void ifft_iter(double complex *X, const int N)
 {
     const int log2N = log2(N);
+    double complex W, t, u;
 
     for (int s = 1; s <= log2N; ++s) {
         const int m = 1 << s;  // 2^s
         const double complex W_m = cexp(I * 2 * M_PI / m);
         for (int k = 0; k < N; k += m) {
-            double complex W = 1;
-            for (int j = 0; j < m / 2; ++j, W *= W_m) {
-                double complex t = W * A[k + j + m / 2];
-                double complex u = A[k + j];
-                A[k + j] = u + t;
-                A[k + j + m / 2] = u - t;
+            W = 1;
+            for (int j = 0; j < m/2; ++j, W *= W_m) {
+                t = X[k + j];
+                u = W * X[k + j + m/2];
+                X[k + j] = t + u;
+                X[k + j + m/2] = t - u;
             }
         }
     }
     for (int n = 0; n < N; n++) {
-        A[n] /= N;
+        X[n] /= N;
     }
 }
 

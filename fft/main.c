@@ -5,109 +5,113 @@
 
 #define V_SIZE 4096
 double complex x[V_SIZE] = {1,2,3,4,3,2,1,0};
-double complex y[V_SIZE];
+double complex X[V_SIZE];
 
-void printcmplx(double complex x)
+void print_complex(double complex x)
 {
     printf("(%11.4e %+11.4ej)", creal(x), cimag(x));
 }
 
-void printvector(double complex *x, int length, char *name)
+void print_complex_array(double complex *x, int length, char *name)
 {
     for (int n = 0; n < length; n++) {
         printf("%s[%d] = ", name, n);
-        printcmplx(x[n]);
+        print_complex(x[n]);
         printf("\n");
     }
 }
 
-void test_dft()
+void show_dft(void)
 {
-    printf("Testing DFT...\n");
-    printvector(x, V_SIZE, "x");
+    printf("Testing dft...\n");
+    print_complex_array(x, V_SIZE, "x");
 
-    dft(y, x, V_SIZE);
+    dft(X, x, V_SIZE);
 
-    printf("X = fft(x)\n");
-    printvector(y, V_SIZE, "X");
+    printf("X = dft(x)\n");
+    print_complex_array(X, V_SIZE, "X");
 
-    idft(x, y, V_SIZE);
+    idft(x, X, V_SIZE);
 
-    printf("x = ifft(X)\n");
-    printvector(x, V_SIZE, "x");
+    printf("x = idft(X)\n");
+    print_complex_array(x, V_SIZE, "x");
 }
 
-void test_fft()
+void show_fft_rec(void)
 {
-    printf("Testing FFT...\n");
-    printvector(x, V_SIZE, "x");
+    printf("Testing fft_rec (dit, recursive)...\n");
+    print_complex_array(x, V_SIZE, "x");
 
-    fft(y, x, V_SIZE);
+    fft_rec(X, x, V_SIZE);
 
-    printf("X = fft(x)\n");
-    printvector(y, V_SIZE, "X");
+    printf("X = fft_rec(x)\n");
+    print_complex_array(X, V_SIZE, "X");
 
-    ifft(x, y, V_SIZE);
+    ifft_rec(x, X, V_SIZE);
 
-    printf("x = ifft(X)\n");
-    printvector(x, V_SIZE, "x");
+    printf("x = ifft_rec(X)\n");
+    print_complex_array(x, V_SIZE, "x");
 }
 
-void test_fft_iter()
+void show_fft_iter(void)
 {
-    printf("Testing FFT_iterative_in_place...\n");
-    printvector(x, V_SIZE, "x");
+    printf("Testing fft_iter (dit, iterative, in place)...\n");
+    print_complex_array(x, V_SIZE, "x");
 
-    shuffle(y, x, V_SIZE);
-    fft_iter_ip(y, V_SIZE);
+    shuffle(X, x, V_SIZE);
+    fft_iter(X, V_SIZE);
 
-    printf("X = fft(x)\n");
-    printvector(y, V_SIZE, "X");
+    printf("X = fft_iter(x)\n");
+    print_complex_array(X, V_SIZE, "X");
 
-    shuffle(x, y, V_SIZE);
-    ifft_iter_ip(x, V_SIZE);
+    shuffle(x, X, V_SIZE);
+    ifft_iter(x, V_SIZE);
 
-    printf("x = ifft(X)\n");
-    printvector(x, V_SIZE, "x");
+    printf("x = ifft_iter(X)\n");
+    print_complex_array(x, V_SIZE, "x");
 }
 
-void benchmark_dft()
+void benchmark_dft(int loops)
 {
-    printf("running 4096 point dft 10 times...");
+    printf("running dft, N=%d, %d times (slowest)...", V_SIZE, loops);
     fflush(stdout);
-    for (int n = 0; n < 10; n++) {
-        dft(y, x, V_SIZE);
+    for (int n = 0; n < loops; n++) {
+        dft(X, x, V_SIZE);
     }
-    printf("done.");
-    fflush(stdout);
+    printf("done\n");
 }
 
-void benchmark_fft()
+void benchmark_fft_rec(int loops)
 {
-    printf("running 4096 point fft 1000 times...");
+    printf("running fft_rec (recursive), N=%d, %d times (fast)...",
+           V_SIZE, loops);
     fflush(stdout);
-    for (int n = 0; n < 1000; n++) {
-        fft(y, x, V_SIZE);
+    for (int n = 0; n < loops; n++) {
+        fft_rec(X, x, V_SIZE);
     }
-    printf("done.");
-    fflush(stdout);
+    printf("done\n");
 }
 
-void benchmark_fft_iter()
+void benchmark_fft_iter(int loops)
 {
-    printf("running 4096 point fft_iter_ip 1000 times...");
+    printf("running fft_iter (iterative, in place) "
+           "N=%d, %d times (fastest)...", V_SIZE, loops);
     fflush(stdout);
-    for (int n = 0; n < 1000; n++) {
-        shuffle(y, x, V_SIZE);
-        fft_iter_ip(y, V_SIZE);
+    for (int n = 0; n < loops; n++) {
+        shuffle(X, x, V_SIZE);
+        fft_iter(X, V_SIZE);
     }
-    printf("done.");
-    fflush(stdout);
+    printf("done\n");
 }
 
 int main(int argc, char *argv[])
 {
-    benchmark_dft();
-    benchmark_fft();
-    benchmark_fft_iter();
+    if (V_SIZE <= 256) {
+        show_dft();
+        show_fft_rec();
+        show_fft_iter();
+    }
+    benchmark_dft(10);
+    benchmark_fft_rec(1000);
+    benchmark_fft_iter(1000);
 }

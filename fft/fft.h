@@ -6,12 +6,12 @@
 /* Discrete Fourier Transform
     N^2 time complexity
 */
-void dft(double complex *out, const double complex *in, int N);
+void dft(double complex *X, const double complex *x, int N);
 
 /* Inverse Discrete Fourier Transform
     N^2 time complexity
 */
-void idft(double complex *out, const double complex *in, int N);
+void idft(double complex *x, const double complex *X, int N);
 
 
 /* Fast Fourier Transform
@@ -22,7 +22,7 @@ void idft(double complex *out, const double complex *in, int N);
    x source array
    N array length, must be a power of 2
 */
-void fft(double complex *X, const double complex *x, int N);
+void fft_rec(double complex *X, const double complex *x, int N);
 
 /* Fast Fourier Transform
     recursive, decimation in time
@@ -32,7 +32,7 @@ void fft(double complex *X, const double complex *x, int N);
    x source array
    N array length, must be a power of 2
 */
-void ifft(double complex *x, const double complex *X, int N);
+void ifft_rec(double complex *x, const double complex *X, int N);
 
 
 /* array length N must be a power of 2 */
@@ -42,18 +42,18 @@ void shuffle(double complex *out, const double complex *in, int N);
     iterative, in place, decimation in time
     N log(N) time complexity
 
-    A array to process
+    x array to process
     N array length, must be a power of 2
 */
-void fft_iter_ip(double complex *A, int N);
+void fft_iter(double complex *x, int N);
 
 /* Inverse Fast Fourier Transfrom
     iterative, in place, decimation in time
     N log(N) time complexity
 
-    A array to process
+    X array to process
     N array length, must be a power of 2
 */
-void ifft_iter_ip(double complex *A, int N);
+void ifft_iter(double complex *X, int N);
 
 #endif /* FFT_H */
