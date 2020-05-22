@@ -1,16 +1,27 @@
 CC = gcc
 CFLAGS = -std=c99 -pedantic-errors -Wall
 LFLAGS = -lm
-OBJS =
+OBJS = benchmark.o test.o fft.o util.o
 
-fft: fft.o main.o
+all: test benchmark
+
+test: test.o fft.o util.o
+	$(CC) -o $@ $^ $(LFLAGS)
+
+benchmark: benchmark.o fft.o util.o
 	$(CC) -o $@ $^ $(LFLAGS)
 
 fft.o: fft.c fft.h
 	$(CC) -o $@ -c $(CFLAGS) $<
 
-main.o: main.c fft.h
+util.o: util.c util.h
+	$(CC) -o $@ -c $(CFLAGS) $<
+
+test.o: test.c fft.h util.h
+	$(CC) -o $@ -c $(CFLAGS) $<
+
+benchmark.o: benchmark.c fft.h util.h
 	$(CC) -o $@ -c $(CFLAGS) $<
 
 clean:
-	rm -f main.o fft.o fft
+	rm -f $(OBJS) benchmark test
