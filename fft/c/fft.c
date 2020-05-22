@@ -6,12 +6,17 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+static double complex twiddle(int N)
+{
+    return cexp(I * 2 * M_PI / N);
+}
+
 /* Discrete Fourier Transform
     N^2 time complexity
 */
 void dft(double complex *X, const double complex *x, const int N)
 {
-    const double complex W_N = cexp(-I * 2 * M_PI / N);
+    const double complex W_N = twiddle(-N);
     double complex W_k = 1, sum, W;
     for (int k = 0; k < N; k++, W_k *= W_N) {
         sum = 0;
@@ -28,7 +33,7 @@ void dft(double complex *X, const double complex *x, const int N)
 */
 void idft(double complex *x, const double complex *X, const int N)
 {
-    const double complex W_N = cexp(I * 2 * M_PI / N);
+    const double complex W_N = twiddle(N);
     double complex W_k = 1, sum, W;
     for (int k = 0; k < N; k++, W_k *= W_N) {
         sum = 0;
@@ -53,9 +58,11 @@ fft_r(double complex *X, const double complex *x, const int N, const int s)
         X[0] = x[0];
         return;
     }
+
     fft_r(X,       x,     N/2, 2*s); // X[0]...X[N/2-1] <- DFT(evenish of x)
     fft_r(X + N/2, x + s, N/2, 2*s); // X[N/2]...X[N-1] <- DFT(oddish of x)
-    const double complex W_N = cexp(-I * 2 * M_PI / N);
+
+    const double complex W_N = twiddle(-N);
     double complex W = 1;
     for (int k = 0; k < N/2; k++, W *= W_N) {
         double complex t = X[k];
@@ -90,9 +97,11 @@ ifft_r(double complex *x, const double complex *X, const int N, const int s)
         x[0] = X[0];
         return;
     }
+
     ifft_r(x,       X,     N/2, 2*s); // x[0]...x[N/2-1] <- IDFT(evenish of X)
     ifft_r(x + N/2, X + s, N/2, 2*s); // x[N/2]...x[N-1] <- IDFT(oddish of X)
-    const double complex W_N = cexp(I * 2 * M_PI / N);
+
+    const double complex W_N = twiddle(N);
     double complex W = 1;
     for (int k = 0; k < N/2; k++, W *= W_N) {
         double complex t = x[k];
@@ -164,7 +173,7 @@ void fft_iter(double complex *x, const int N)
 
     for (int s = 1; s <= log2N; ++s) {
         const int m = 1 << s;  // 2^s
-        const double complex W_m = cexp(-I * 2 * M_PI / m);
+        const double complex W_m = twiddle(-m);
         for (int k = 0; k < N; k += m) {
             W = 1;
             for (int j = 0; j < m/2; ++j, W *= W_m) {
@@ -191,7 +200,7 @@ void ifft_iter(double complex *X, const int N)
 
     for (int s = 1; s <= log2N; ++s) {
         const int m = 1 << s;  // 2^s
-        const double complex W_m = cexp(I * 2 * M_PI / m);
+        const double complex W_m = twiddle(m);
         for (int k = 0; k < N; k += m) {
             W = 1;
             for (int j = 0; j < m/2; ++j, W *= W_m) {
