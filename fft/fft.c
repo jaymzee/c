@@ -55,10 +55,12 @@ fft1(double complex *X, const double complex *x, const int N, const int s)
     }
     fft1(X,       x,     N/2, 2 * s); // X[0]...X[N/2-1] <- DFT(evenish of x)
     fft1(X + N/2, x + s, N/2, 2 * s); // X[N/2]...X[N-1] <- DFT(oddish of x)
-    for (int k = 0; k < N/2; k++) {
+    const double complex W_N = cexp(-I * 2 * M_PI / N);
+    double complex W = 1;
+    for (int k = 0; k < N/2; k++, W *= W_N) {
         double complex t = X[k];
-        X[k]       = t + cexp(-I * 2 * M_PI * k / N) * X[k + N/2];
-        X[k + N/2] = t - cexp(-I * 2 * M_PI * k / N) * X[k + N/2];
+        X[k]       = t + W * X[k + N/2];
+        X[k + N/2] = t - W * X[k + N/2];
     }
 }
 
@@ -92,10 +94,12 @@ ifft1(double complex *x, const double complex *X, const int N, const int s)
     }
     ifft1(x,       X,     N/2, 2 * s); // x[0]...x[N/2-1] <- IDFT(evenish of X)
     ifft1(x + N/2, X + s, N/2, 2 * s); // x[N/2]...x[N-1] <- IDFT(oddish of X)
-    for (int k = 0; k < N/2; k++) {
+    const double complex W_N = cexp(I * 2 * M_PI / N);
+    double complex W = 1;
+    for (int k = 0; k < N/2; k++, W *= W_N) {
         double complex t = x[k];
-        x[k]       = t + cexp(I * 2 * M_PI * k / N) * x[k + N/2];
-        x[k + N/2] = t - cexp(I * 2 * M_PI * k / N) * x[k + N/2];
+        x[k]       = t + W * x[k + N/2];
+        x[k + N/2] = t - W * x[k + N/2];
     }
 }
 

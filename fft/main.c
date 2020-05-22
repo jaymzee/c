@@ -3,7 +3,7 @@
 #include <complex.h>
 #include "fft.h"
 
-#define V_SIZE 8
+#define V_SIZE 4096
 double complex x[V_SIZE] = {1,2,3,4,3,2,1,0};
 double complex y[V_SIZE];
 
@@ -71,9 +71,43 @@ void test_fft_iter()
     printvector(x, V_SIZE, "x");
 }
 
+void benchmark_dft()
+{
+    printf("running 4096 point dft 10 times...");
+    fflush(stdout);
+    for (int n = 0; n < 10; n++) {
+        dft(y, x, V_SIZE);
+    }
+    printf("done.");
+    fflush(stdout);
+}
+
+void benchmark_fft()
+{
+    printf("running 4096 point fft 1000 times...");
+    fflush(stdout);
+    for (int n = 0; n < 1000; n++) {
+        fft(y, x, V_SIZE);
+    }
+    printf("done.");
+    fflush(stdout);
+}
+
+void benchmark_fft_iter()
+{
+    printf("running 4096 point fft_iter_ip 1000 times...");
+    fflush(stdout);
+    for (int n = 0; n < 1000; n++) {
+        shuffle(y, x, V_SIZE);
+        fft_iter_ip(y, V_SIZE);
+    }
+    printf("done.");
+    fflush(stdout);
+}
+
 int main(int argc, char *argv[])
 {
-    test_dft();
-    test_fft();
-    test_fft_iter();
+    benchmark_dft();
+    benchmark_fft();
+    benchmark_fft_iter();
 }
