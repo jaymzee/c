@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <complex>
-#include "fft.h"
-#include "util.h"
+#include "fft.hpp"
+#include "util.hpp"
 
 #define V_SIZE 8
 

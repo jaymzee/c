@@ -3,7 +3,7 @@
 
 #include <complex>
 #include <vector>
-#include "fft.h"
+#include "fft.hpp"
 
 /* vector functions for working with vectors */
 

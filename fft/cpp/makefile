@@ -6,13 +6,13 @@ OBJS = test test-vector benchmark
 
 all: $(OBJS)
 
-test: test.cpp fft.h util.h
+test: test.cpp fft.hpp util.hpp
 	$(CXX) -o $@ $(CFLAGS) $<
 
-test-vector: test-vector.cpp fft.h fft-vector.h util.h
+test-vector: test-vector.cpp fft-vector.hpp fft.hpp util.hpp
 	$(CXX) -o $@ $(CFLAGS) $<
 
-benchmark: benchmark.cpp fft.h util.h
+benchmark: benchmark.cpp fft.hpp util.hpp
 	$(CXX) -o $@ $(CFLAGS) $<
 
 clean:
