@@ -11,7 +11,7 @@ void benchmark_dft(int loops)
     printf("running dft, N=%d, %d times (slowest)...", V_SIZE, loops);
     fflush(stdout);
     for (int n = 0; n < loops; n++) {
-        dft(X, x, V_SIZE);
+        fft::dft(X, x, V_SIZE);
     }
     printf("done\n");
 }
@@ -22,7 +22,7 @@ void benchmark_fft_rec(int loops)
            V_SIZE, loops);
     fflush(stdout);
     for (int n = 0; n < loops; n++) {
-        fft_rec(X, x, V_SIZE);
+        fft::fft_rec(X, x, V_SIZE);
     }
     printf("done\n");
 }
@@ -33,8 +33,8 @@ void benchmark_fft_iter(int loops)
            "N=%d, %d times (fastest)...", V_SIZE, loops);
     fflush(stdout);
     for (int n = 0; n < loops; n++) {
-        shuffle(X, x, V_SIZE);
-        fft_iter(X, V_SIZE);
+        fft::shuffle(X, x, V_SIZE);
+        fft::fft_iter(X, V_SIZE);
     }
     printf("done\n");
 }

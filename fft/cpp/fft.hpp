@@ -4,6 +4,9 @@
 #include <cmath>
 #include <complex>
 
+namespace fft
+{
+
 template <class T>
 inline std::complex<T> twiddle(int N)
 {
@@ -225,4 +228,5 @@ void ifft_iter(std::complex<T> *X, const int N)
     }
 }
 
+}
 #endif /* FFT_H */

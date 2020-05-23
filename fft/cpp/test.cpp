@@ -11,51 +11,51 @@ std::complex<double> X[V_SIZE];
 void show_dft(int fmt)
 {
     printf("Testing dft...\n");
-    print_complex_array(x, V_SIZE, "x", fmt);
+    util::print(std::cout, x, V_SIZE, "x", fmt);
 
-    dft(X, x, V_SIZE);
+    fft::dft(X, x, V_SIZE);
 
     printf("X = dft(x)\n");
-    print_complex_array(X, V_SIZE, "X", fmt);
+    util::print(std::cout, X, V_SIZE, "X", fmt);
 
-    idft(x, X, V_SIZE);
+    fft::idft(x, X, V_SIZE);
 
     printf("x = idft(X)\n");
-    print_complex_array(x, V_SIZE, "x", fmt);
+    util::print(std::cout, x, V_SIZE, "x", fmt);
 }
 
 void show_fft_rec(int fmt)
 {
     printf("Testing fft_rec (dit, recursive)...\n");
-    print_complex_array(x, V_SIZE, "x", fmt);
+    util::print(std::cout, x, V_SIZE, "x", fmt);
 
-    fft_rec(X, x, V_SIZE);
+    fft::fft_rec(X, x, V_SIZE);
 
     printf("X = fft_rec(x)\n");
-    print_complex_array(X, V_SIZE, "X", fmt);
+    util::print(std::cout, X, V_SIZE, "X", fmt);
 
-    ifft_rec(x, X, V_SIZE);
+    fft::ifft_rec(x, X, V_SIZE);
 
     printf("x = ifft_rec(X)\n");
-    print_complex_array(x, V_SIZE, "x", fmt);
+    util::print(std::cout, x, V_SIZE, "x", fmt);
 }
 
 void show_fft_iter(int fmt)
 {
     printf("Testing fft_iter (dit, iterative, in place)...\n");
-    print_complex_array(x, V_SIZE, "x", fmt);
+    util::print(std::cout, x, V_SIZE, "x", fmt);
 
-    shuffle(X, x, V_SIZE);
-    fft_iter(X, V_SIZE);
+    fft::shuffle(X, x, V_SIZE);
+    fft::fft_iter(X, V_SIZE);
 
     printf("X = fft_iter(x)\n");
-    print_complex_array(X, V_SIZE, "X", fmt);
+    util::print(std::cout, X, V_SIZE, "X", fmt);
 
-    shuffle(x, X, V_SIZE);
-    ifft_iter(x, V_SIZE);
+    fft::shuffle(x, X, V_SIZE);
+    fft::ifft_iter(x, V_SIZE);
 
     printf("x = ifft_iter(X)\n");
-    print_complex_array(x, V_SIZE, "x", fmt);
+    util::print(std::cout, x, V_SIZE, "x", fmt);
 }
 
 int main(int argc, char *argv[])

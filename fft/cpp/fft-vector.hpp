@@ -5,6 +5,9 @@
 #include <vector>
 #include "fft.hpp"
 
+namespace fft
+{
+
 /* vector functions for working with vectors */
 
 /* Discrete Fourier Transform (vector)
@@ -114,5 +117,7 @@ ifft_iter(const std::vector<std::complex<T>>& X)
     ifft_iter(x.data(), N);
     return x;
 }
+
+} /* namespace fft */
 
 #endif /* FFT_VECTOR_H */
