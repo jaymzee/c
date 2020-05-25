@@ -133,7 +133,7 @@ void ifft_rec(std::complex<T> *x, const std::complex<T> *X, const int N)
 }
 
 /* w is the bit width of the index e.g. n=12 for N=4096 */
-inline unsigned int reverse_bits(register unsigned int x, int w)
+inline unsigned int reverse_bits(unsigned int x, int w)
 {
     x = (x & 0xaaaaaaaa) >> 1 | (x & 0x55555555) << 1;
     x = (x & 0xcccccccc) >> 2 | (x & 0x33333333) << 2;
@@ -211,7 +211,6 @@ void ifft_iter(std::complex<T> *X, const int N)
 
     for (int s = 1; s <= log2N; ++s) {
         const int m = 1 << s;  // 2^s
-        const std::complex<T> I(0, 1);
         const std::complex<T> W_m = twiddle<T>(m);
         for (int k = 0; k < N; k += m) {
             W = 1;

@@ -90,13 +90,12 @@ ifft_rec(const std::vector<std::complex<T>>& X)
 */
 template <class T>
 std::vector<std::complex<T>>
-fft_iter(const std::vector<std::complex<T>>& x)
+fft_iter(std::vector<std::complex<T>> x)
 {
     const int N = x.size();
-    std::vector<std::complex<T>> X(N);
-    shuffle(X.data(), x.data(), N);
-    fft_iter(X.data(), N);
-    return X;
+    shuffle(x.data(), x.data(), N);
+    fft_iter(x.data(), N);
+    return x;
 }
 
 /* Inverse Fast Fourier Transfrom (vector)
@@ -109,13 +108,12 @@ fft_iter(const std::vector<std::complex<T>>& x)
 */
 template <class T>
 std::vector<std::complex<T>>
-ifft_iter(const std::vector<std::complex<T>>& X)
+ifft_iter(std::vector<std::complex<T>> X)
 {
     const int N = X.size();
-    std::vector<std::complex<T>> x(N);
-    shuffle(x.data(), X.data(), N);
-    ifft_iter(x.data(), N);
-    return x;
+    shuffle(X.data(), X.data(), N);
+    ifft_iter(X.data(), N);
+    return X;
 }
 
 } /* namespace fft */
