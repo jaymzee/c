@@ -24,9 +24,8 @@ void dft(std::complex<T> *X, const std::complex<T> *x, const int N)
     for (int k = 0; k < N; k++, W_k *= W_N) {
         sum = 0;
         W = 1;
-        for (int n = 0; n < N; n++, W *= W_k) {
+        for (int n = 0; n < N; n++, W *= W_k)
             sum += x[n] * W;
-        }
         X[k] = sum;
     }
 }
@@ -42,9 +41,8 @@ void idft(std::complex<T> *x, const std::complex<T> *X, const int N)
     for (int k = 0; k < N; k++, W_k *= W_N) {
         sum = 0;
         W = 1;
-        for (int n = 0; n < N; n++, W *= W_k) {
+        for (int n = 0; n < N; n++, W *= W_k)
             sum += X[n] * W;
-        }
         x[k] = sum / (T)N;
     }
 }
@@ -127,9 +125,8 @@ template <class T>
 void ifft_rec(std::complex<T> *x, const std::complex<T> *X, const int N)
 {
     ifft_r(x, X, N, 1);
-    for (int n = 0; n < N; n++) {
+    for (int n = 0; n < N; n++)
         x[n] /= N;
-    }
 }
 
 /* w is the bit width of the index e.g. n=12 for N=4096 */
@@ -145,25 +142,20 @@ inline unsigned int reverse_bits(unsigned int x, int w)
 
 /* array length N must be a power of 2 */
 template <class T>
-void shuffle(std::complex<T> *out, const std::complex<T> *in, const int N)
+void shuffle(std::complex<T> *y, const std::complex<T> *x, const int N)
 {
     const int w = log2(N);
 
-    if (out != in) {
+    if (y != x) {
         // assume distinct non-overlapping arrays
-        for (int k = 0; k < N; ++k) {
-            out[reverse_bits(k, w)] = in[k];
-        }
+        for (int k = 0; k < N; ++k)
+            y[reverse_bits(k, w)] = x[k];
     } else {
         // out and in are the same array
         for (int a = 0; a < N; ++a) {
             const int b = reverse_bits(a, w);
-            if (a < b) {
-                // swap out[b] with out[a]
-                const std::complex<T> t = out[b];
-                out[b] = out[a];
-                out[a] = t;
-            }
+            if (a < b)
+                std::swap(y[b], y[a]);
         }
     }
 }
@@ -222,10 +214,9 @@ void ifft_iter(std::complex<T> *X, const int N)
             }
         }
     }
-    for (int n = 0; n < N; n++) {
+    for (int n = 0; n < N; n++)
         X[n] /= N;
-    }
 }
 
-}
+} /* namespace fft */
 #endif /* FFT_H */

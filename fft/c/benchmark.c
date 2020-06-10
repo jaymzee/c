@@ -43,6 +43,6 @@ void benchmark_fft_iter(int loops)
 int main(int argc, char *argv[])
 {
     //benchmark_dft(10);
-    benchmark_fft_rec(1000);
-    benchmark_fft_iter(1000);
+    //benchmark_fft_rec(1000);
+    benchmark_fft_iter(10000);
 }

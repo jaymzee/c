@@ -1,5 +1,5 @@
-CC = clang
-CXX = clang++
+CC = gcc
+CXX = g++
 CFLAGS = -std=c++11 -pedantic-errors -Wall -O3
 LFLAGS =
 OBJS = test test-vector benchmark
