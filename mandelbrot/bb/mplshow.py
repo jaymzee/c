@@ -22,9 +22,8 @@ def main():
             cmap = sys.argv[3]
         else:
             cmap = 'gray'
-
     else:
-        print("Usage: mplshow filename threshold")
+        print("Usage: mplshow filename threshold [colormap]")
         exit(1)
 
     # read rendered image into numpy array
