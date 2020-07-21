@@ -18,7 +18,7 @@
    max_iter 10000
 */
 
-const double X0 = -1.75;    /* X is the real axis aligned horizontally */
+const double X0 = -1.70;    /* X is the real axis aligned horizontally */
 const double X1 =  0.75;
 const double Y0 = -1.50;    /* Y is the imaginary axis aligned vertically */
 const double Y1 =  1.50;
