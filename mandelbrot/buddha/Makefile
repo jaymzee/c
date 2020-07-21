@@ -1,21 +1,22 @@
 CC = gcc
 CXX = g++
-CFLAGS = -O2 -pedantic-errors -Wall
+CFLAGS = -O2 -std=c99 -pedantic -Werror
+CXXFLAGS = -O2 -std=c++11 -pedantic -Werror
 LFLAGS = -lm
 
-all: bbrot bbrotpp
+all: buddhabrot buddhabrotpp
 
-bbrot: bbrot.o
+buddhabrot: buddhabrot.o
 	$(CC) -o $@ $^ $(LFLAGS)
 
-bbrot.o : bbrot.c
+buddhabrot.o : buddhabrot.c
 	$(CC) $(CFLAGS) -c $<
 
-bbrotpp: bbrotpp.o
+buddhabrotpp: buddhabrotpp.o
 	$(CXX) -o $@ $^ $(LFLAGS)
 
-bbrotpp.o : bbrotpp.cpp
-	$(CXX) $(CFLAGS) -c $<
+buddhabrotpp.o : buddhabrotpp.cpp
+	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
-	rm -f bbrot.o bbrot bbrotpp.o bbrotpp
+	rm -f *.o buddhabrot buddhabrotpp
