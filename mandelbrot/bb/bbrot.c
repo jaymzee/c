@@ -24,10 +24,18 @@ const double Y0 = -1.50;    /* Y is the imaginary axis aligned vertically */
 const double Y1 =  1.50;
 const double ESCAPE_MAG = 2.3;
 
-void render_image(int *count, int width, int height, int samples, int max_iter)
+struct image {
+    int *buffer;
+    int width;
+    int height;
+};
+
+void render_orbits(const struct image *img, int samples, int max_iter)
 {
-    complex double c;
-    complex double z;
+    complex double z, c;
+    int *const buf = img->buffer;
+    const int w = img->width;
+    const int h = img->height;
 
     for (int n = 0; n < samples; n++) {
         c = ((double)rand() / RAND_MAX * (X1 - X0) + X0) +
@@ -41,10 +49,10 @@ void render_image(int *count, int width, int height, int samples, int max_iter)
                 z = 0;
                 while (cabs(z) <= ESCAPE_MAG) {
                     /* map complex z back to image coordinates */
-                    int x = (creal(z) - X0) / (X1 - X0) * width;
-                    int y = (cimag(z) - Y0) / (Y1 - Y0) * height;
-                    if (x >= 0 && x < width && y >= 0 && y < height) {
-                        count[y * width + x]++;
+                    int x = (creal(z) - X0) / (X1 - X0) * w;
+                    int y = (cimag(z) - Y0) / (Y1 - Y0) * h;
+                    if (x >= 0 && x < w && y >= 0 && y < h) {
+                        buf[y * w + x]++;
                     }
                     z = z * z + c;
                 }
@@ -54,15 +62,19 @@ void render_image(int *count, int width, int height, int samples, int max_iter)
     }
 }
 
-void write_image(int *count, int width, int height, int samples, int max_iter)
+void write_image(const struct image *img, int samples, int max_iter)
 {
+    int *const buf = img->buffer;
+    const int w = img->width;
+    const int h = img->height;
+
     printf("# Buddhabrot rendering\n");
-    printf("# image size: %d x %d \n", width, height);
+    printf("# image size: %d x %d \n", w, h);
     printf("# samples: %d \n", samples);
     printf("# max iterations: %d \n", max_iter);
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            printf("%03d ", count[i * width + j]);
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            printf("%03d ", buf[y * w + x]);
         }
         printf("\n");
     }
@@ -70,9 +82,8 @@ void write_image(int *count, int width, int height, int samples, int max_iter)
 
 int main(int argc, char *argv[])
 {
+    struct image img = { NULL, 64, 64 };
     int max_iter = 20;
-    int width = 64;
-    int height = 64;
     int samples = 1000;
 
     /* process command line arguments */
@@ -84,22 +95,17 @@ int main(int argc, char *argv[])
             samples = atoi(argv[i] + 2);
         }
         if (strncmp("-w", argv[i], 2) == 0) {
-            width = atoi(argv[i] + 2);
+            img.width = atoi(argv[i] + 2);
         }
         if (strncmp("-h", argv[i], 2) == 0) {
-            height = atoi(argv[i] + 2);
+            img.height = atoi(argv[i] + 2);
         }
     }
 
-    int *count = calloc(width * height, sizeof(*count));
-
-    /* render image */
-    render_image(count, width, height, samples, max_iter);
-
-    /* write image data to stdout */
-    write_image(count, width, height, samples, max_iter);
-
-    free(count);
+    img.buffer = calloc(img.width * img.height, sizeof(*img.buffer));
+    render_orbits(&img, samples, max_iter);
+    write_image(&img, samples, max_iter);
+    free(img.buffer);
 
     return 0;
 }
