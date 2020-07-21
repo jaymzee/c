@@ -1,10 +1,10 @@
 import sys
 import os
 import numpy as np
-import matplotlib.pyplot as plt
+from PIL import Image
 
 def print_stats(arr, header):
-    if msg:
+    if header:
         print(header)
         indent = "    "
     else:
@@ -19,7 +19,7 @@ def main():
         in_filename = sys.argv[1]
         clip_th = int(sys.argv[2])
     else:
-        print("Usage: mpl_show filename threshold")
+        print("Usage: pilshow filename threshold")
         exit(1)
 
     # read rendered image into numpy array
@@ -39,14 +39,15 @@ def main():
     rot_arr = np.fliplr(clipped_arr.T) # rotate 90 degrees
 
     # display image momentarily
-    plt.imshow(rot_arr)
-    plt.show()
+    img = Image.fromarray(rot_arr)
+    img.show()
 
     # write PNG image
     out_basename, ext = os.path.splitext(in_filename)
     out_filename = out_basename + ".png"
     print("writing PNG image to %s" % out_filename)
-    plt.imsave(out_filename, rot_arr)
+    img_lum = img.convert("L")
+    img_lum.save(out_filename)
 
 
 if __name__ == "__main__":
