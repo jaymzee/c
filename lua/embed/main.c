@@ -27,6 +27,9 @@ int main()
     lua_setglobal(L, "c_swap");
 
     // Tell Lua to execute a lua command
-    luaL_dostring(L, "print(c_swap(4, 5))");
+    // luaL_dostring(L, "print(c_swap(4, 5))");
+    // Tell Lua to execute a lua file
+    luaL_dofile(L, "main.lua");
+
     return 0;
 }
