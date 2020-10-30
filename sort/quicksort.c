@@ -50,14 +50,14 @@ int partition(char *n, int lo, int hi)
 
     for (int j = lo; j < hi; j++) {
         if (n[j] < pivot) {
-            tmp = n[i]; 
-            n[i] = n[j]; 
+            tmp = n[i];
+            n[i] = n[j];
             n[j] = tmp;
-            i++; 
+            i++;
         }
     }
-    tmp = n[i]; 
-    n[i] = n[hi]; 
+    tmp = n[i];
+    n[i] = n[hi];
     n[hi] = tmp;
 
     return i;
@@ -79,6 +79,6 @@ int main()
     puts(ruler);
     print_array(-1, -1, -1);
     quicksort(array, 0, LENGTH - 1);
-    
+
     return 0;
 }

@@ -14,7 +14,7 @@ void printarray(int *arr, int len, int first, int min)
     for (int i = 0; i < len; i++) {
         if (i == first && ANSI)
             printf("\033[1;31m");
-        if (i == min && ANSI) 
+        if (i == min && ANSI)
             printf("\033[1;32m%d\033[1;31m ", arr[i]);
         else
             printf("%d ", arr[i]);
@@ -22,7 +22,7 @@ void printarray(int *arr, int len, int first, int min)
             printf("\033[0m");
         }
     }
-    
+
     printf("\n");
 }
 
