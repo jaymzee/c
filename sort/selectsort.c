@@ -1,3 +1,10 @@
+/************************************************
+* selection sort                                *
+* best case performance: O(n2)                  *
+* worst case performance: O(n2)                 *
+* stability: not stable                         *
+*************************************************/
+
 #include <stdio.h>
 #define ANSI 1
 

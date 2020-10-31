@@ -1,4 +1,10 @@
-/* merge sort top-down implementation */
+/************************************************
+* merge sort top-down implementation            *
+* best case time complexity: O(nlogn)           *
+* worst case time complexity: O(nlogn)          *
+* stability: stable                             *
+* preferred for linked lists                    *
+*************************************************/
 
 #include <stdio.h>
 

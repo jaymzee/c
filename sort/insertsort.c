@@ -1,3 +1,10 @@
+/************************************************
+* insertion sort                                *
+* best case performance: O(n2)                  *
+* worst case performance: O(n2)                 *
+* stability: stable                             *
+*************************************************/
+
 #include <stdio.h>
 
 #define ANSI 1

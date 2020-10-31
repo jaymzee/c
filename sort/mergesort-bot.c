@@ -1,4 +1,10 @@
-/* merge sort bottom-up */
+/************************************************
+* merge sort bottom-up implementation           *
+* best case time complexity: O(nlogn)           *
+* worst case time complexity: O(nlogn)          *
+* stability: stable                             *
+* preferred for linked lists                    *
+*************************************************/
 
 #include <stdio.h>
 
@@ -27,8 +33,8 @@ CopyArray(int dst[], const int src[], int n)
         dst[i] = src[i];
 }
 
-//  Left run is a[  iLeft : iRight - 1 ]
-// Right run is a[ iRight : iEnd - 1   ]
+//  Left run is a[ left:right-1]
+// Right run is a[right:end-1  ]
 static void
 BottomUpMerge(const int a[], int b[], int left, int right, int end)
 {
@@ -55,8 +61,8 @@ BottomUpMergeSort(int a[], int b[], int n)
         // Array a is full of runs of length width.
         for (int i = 0; i < n; i += 2 * w)
         {
-            // Merge two runs: a[i : i + w-1] and a[i + w : i + 2*w - 1] to b[]
-            // or copy a[ i : n-1 ] to b[] ( if(i + w >= n) )
+            // Merge two runs: a[i:i + w-1] and a[i + w:i + 2*w - 1] to b[]
+            // or copy a[i:n-1] to b[] ( if(i + w >= n) )
             BottomUpMerge(a, b, i, min(i + w, n), min(i + 2 * w, n));
         }
 
