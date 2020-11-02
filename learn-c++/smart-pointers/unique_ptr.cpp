@@ -39,7 +39,7 @@ void do_something(const std::unique_ptr<Resource>& r)
 int main()
 {
     Worker w;
-    std::unique_ptr<Resource> r{ new Resource{"vram"} };
+    auto r = std::make_unique<Resource>("vram");
 
     do_something(r);
     w.resource_ptr = std::move(r);
