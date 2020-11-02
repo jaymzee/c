@@ -1,3 +1,11 @@
+/************************************************
+* quicksort                                     *
+* best case time complexity: O(nlogn)           *
+* worst case time complexity: O(n2)             *
+* stability: not stable                         *
+* preferred for arrays                          *
+*************************************************/
+
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -20,9 +28,9 @@ void print_array(int lo, int hi, int p)
         if (i == lo && ANSI)
             printf("\x1b[1;31m");
 
-        if (i == p && ANSI) 
+        if (i == p && ANSI)
             printf("\x1b[1;32m%c\x1b[31m", array[i]);
-        else 
+        else
             printf("%c", array[i]);
 
         if (i == hi && ANSI)
@@ -50,14 +58,14 @@ int partition(char *n, int lo, int hi)
 
     for (int j = lo; j < hi; j++) {
         if (n[j] < pivot) {
-            tmp = n[i]; 
-            n[i] = n[j]; 
+            tmp = n[i];
+            n[i] = n[j];
             n[j] = tmp;
-            i++; 
+            i++;
         }
     }
-    tmp = n[i]; 
-    n[i] = n[hi]; 
+    tmp = n[i];
+    n[i] = n[hi];
     n[hi] = tmp;
 
     return i;
@@ -79,6 +87,6 @@ int main()
     puts(ruler);
     print_array(-1, -1, -1);
     quicksort(array, 0, LENGTH - 1);
-    
+
     return 0;
 }

@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c99 -pedantic-errors -Wall
 LFLAGS = -s
-OBJS = quicksort insertsort selectsort
+OBJS = quicksort insertsort selectsort mergesort-top mergesort-bot
 
 all: $(OBJS)
 clean:
