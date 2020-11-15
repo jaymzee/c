@@ -5,11 +5,11 @@ class Foo: public Snitch {
     int resource;
 public:
 
-    explicit Foo(int x):Snitch(x), resource(x) {}
-    Foo(const Foo& src):Snitch(src), resource(src.resource) {
+    explicit Foo(int x) : Snitch(x), resource(x) {}
+    Foo(const Foo& src) : Snitch(src), resource(src.resource) {
         std::cout << "Foo::copy ctor\n";
     }
-    Foo(Foo&& src):Snitch(std::move(src)), resource(src.resource) {
+    Foo(Foo&& src) : Snitch(std::move(src)), resource(src.resource) {
         src.resource = 0;
         std::cout << "Foo::move ctor\n";
     }
