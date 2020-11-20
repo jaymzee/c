@@ -1,4 +1,4 @@
-#include "../../snitch/Snitch.h"
+#include "../snitch/snitch.h"
 #include <iostream>
 
 class Foo: public Snitch {

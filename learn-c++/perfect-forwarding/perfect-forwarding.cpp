@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../snitch/Snitch.h"
+#include "../snitch/snitch.h"
 
 class Person : Snitch {
 public:
