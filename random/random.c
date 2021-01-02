@@ -26,16 +26,16 @@ int my_rand (unsigned int *seed)
 
 int main()
 {
-    unsigned int seed = 1;
+    unsigned int iv = 42, seed = iv;
     unsigned int period = 0;
 
     my_rand(&seed);
 
     while (1) {
         my_rand(&seed);
-        if (seed == 1)
-            break;
         period++;
+        if (seed == iv)
+            break;
     }
     printf("%u\n", period);
 }
