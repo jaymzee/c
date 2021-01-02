@@ -7,7 +7,7 @@ void run_lfsr(uint64_t poly, uint64_t iv)
     uint64_t x = iv, period = 0;
     while (1) {
         if (period < 16) {
-            printf("%4llu: %016llx\n", period+1, x);
+            printf("%d: %016llx\n", (int)(period+1), (unsigned long long)x);
         } else if (period == 16) {
             printf("...\n");
         }
@@ -19,7 +19,7 @@ void run_lfsr(uint64_t poly, uint64_t iv)
         if (x == iv)
             break;
     }
-    printf("period = %llu\n", period);
+    printf("period = %llu\n", (unsigned long long)period);
 }
 
 int main(int argc, char *argv[])
