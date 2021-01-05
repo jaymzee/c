@@ -10,14 +10,14 @@ extern int yylval;
 [a-z]       {
                 c = yytext[0];
                 yylval = c - 'a';
-                return(LETTER);
+                return LETTER;
             }
 [0-9]       {
                 c = yytext[0];
-                yylval = c - '0';
-                return(DIGIT);
+                //yylval = c - '0';
+                return DIGIT;
             }
 [^a-z0-9\b] {
                 c = yytext[0];
-                return(c);
+                return c;
             }

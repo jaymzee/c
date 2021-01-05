@@ -43,7 +43,7 @@ number: DIGIT { $$ = $1; base = ($1==0) ? 8 : 10; } |
 
 int main(int argc, char *argv[])
 {
-    return(yyparse());
+    return yyparse();
 }
 
 void yyerror(const char *s)
@@ -53,5 +53,5 @@ void yyerror(const char *s)
 
 int yywrap()
 {
-    return(1);
+    return 1;
 }
