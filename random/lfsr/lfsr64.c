@@ -2,24 +2,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-void run_lfsr(uint64_t poly, uint64_t iv)
+uint64_t shift_lfsr(uint64_t *lfsr, uint64_t poly)
 {
-    uint64_t x = iv, period = 0;
+    int fb = *lfsr & 1;
+
+    *lfsr >>= 1;
+    if (fb) {
+        *lfsr ^= poly;
+    }
+
+    return *lfsr;
+}
+
+void run_lfsr(uint64_t iv, uint64_t poly)
+{
+    unsigned long long x = iv, period = 0;
     while (1) {
         if (period < 16) {
-            printf("%d: %016llx\n", (int)(period+1), (unsigned long long)x);
+            printf("%d: %016llx\n", (int)(period+1), x);
         } else if (period == 16) {
             printf("...\n");
         }
-        int fb = x & 1;
-        x = x >> 1;
-        if (fb)
-            x ^= poly;
+        shift_lfsr(&iv, poly);
         period++;
         if (x == iv)
             break;
     }
-    printf("period = %llu\n", (unsigned long long)period);
+    printf("period = %llu\n", period);
 }
 
 int main(int argc, char *argv[])
@@ -35,5 +44,5 @@ int main(int argc, char *argv[])
     }
     poly = strtoull(argv[1], NULL, 16);
     iv = strtoull(argv[2], NULL, 16);
-    run_lfsr(poly, iv);
+    run_lfsr(iv, poly);
 }

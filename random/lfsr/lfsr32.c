@@ -2,7 +2,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-void run_lfsr(uint32_t poly, uint32_t iv)
+uint32_t shift_lfsr(uint32_t *lfsr, uint32_t poly)
+{
+    int fb = *lfsr & 1;
+
+    *lfsr >>= 1;
+    if (fb) {
+        *lfsr ^= poly;
+    }
+
+    return *lfsr;
+}
+
+void run_lfsr(uint32_t iv, uint32_t poly)
 {
     uint32_t x = iv, period = 0;
     while (1) {
@@ -11,10 +23,7 @@ void run_lfsr(uint32_t poly, uint32_t iv)
         } else if (period == 16) {
             printf("...\n");
         }
-        int fb = x & 1;
-        x = x >> 1;
-        if (fb)
-            x ^= poly;
+        shift_lfsr(&iv, poly);
         period++;
         if (x == iv)
             break;
@@ -35,5 +44,5 @@ int main(int argc, char *argv[])
     }
     poly = strtoul(argv[1], NULL, 16);
     iv = strtoul(argv[2], NULL, 16);
-    run_lfsr(poly, iv);
+    run_lfsr(iv, poly);
 }
