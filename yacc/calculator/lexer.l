@@ -14,7 +14,7 @@ extern int yylval;
             }
 [0-9]       {
                 c = yytext[0];
-                //yylval = c - '0';
+                yylval = c - '0';
                 return DIGIT;
             }
 [^a-z0-9\b] {
