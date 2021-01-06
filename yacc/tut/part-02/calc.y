@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-void yyerror (char *s);
+void yyerror(char *s);
 int yylex();
 
 int symbols[52];
@@ -46,7 +46,7 @@ int ComputeSymbolIndex(char token)
     int idx = 0;
     if (islower(token)) {
         idx = token - 'a' + 26;
-    } else if(isupper(token)) {
+    } else if (isupper(token)) {
         idx = token - 'A';
     }
     return idx;
@@ -68,8 +68,7 @@ void SetSymbolVal(char symbol, int val)
 
 int main(void) {
     /* init symbol table */
-    int i;
-    for(i=0; i<52; i++) {
+    for (int i = 0; i < 52; i++) {
         symbols[i] = 0;
     }
     return yyparse();
