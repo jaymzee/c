@@ -15,7 +15,7 @@ int base;       // current base of integer
 %left '*' '/' '%'
 %left UMINUS  /*supplies precedence for unary minus */
 
-%%      /* beginning of rules section */
+%%
 
 list    : /* empty */
         | list stat '\n'

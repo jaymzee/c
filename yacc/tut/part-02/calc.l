@@ -21,7 +21,7 @@ exit                return EXIT;
 [-+=;]              return yytext[0];
 .                   {
                         ECHO;
-                        yyerror ("unexpected character");
+                        yyerror("unexpected character");
                     }
 
 %%

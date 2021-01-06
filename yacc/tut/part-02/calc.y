@@ -1,5 +1,5 @@
 %{
-#include <stdio.h>     /* C declarations used in actions */
+#include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -7,8 +7,8 @@ void yyerror (char *s);
 int yylex();
 
 int symbols[52];
-int SymbolVal(char symbol);
-void UpdateSymbolVal(char symbol, int val);
+int GetSymbolVal(char symbol);
+void SetSymbolVal(char symbol, int val);
 %}
 
 %union {
@@ -18,23 +18,21 @@ void UpdateSymbolVal(char symbol, int val);
 %token PRINT EXIT
 %token <num> NUMBER
 %token <id> IDENTIFIER
-%type <num> line expr term
+%type <num> expr term
 %type <id> assignment
-%start line
+%start statements
 
 %%
 
-/* descriptions of expected inputs     corresponding actions (in C) */
+statements  : statement
+            | statements statement
 
-line        : assignment ';'            {;}
-            | line assignment ';'       {;}
+statement   : assignment ';'            {;}
             | PRINT expr ';'            { printf("Printing %d\n", $2); }
-            | line PRINT expr ';'       { printf("Printing %d\n", $3); }
-            | line EXIT ';'             { exit(EXIT_SUCCESS); }
             | EXIT ';'                  { exit(EXIT_SUCCESS); }
             ;
 
-assignment  : IDENTIFIER '=' expr       { UpdateSymbolVal($1, $3); }
+assignment  : IDENTIFIER '=' expr       { SetSymbolVal($1, $3); }
             ;
 
 expr        : term                      { $$ = $1; }
@@ -43,14 +41,14 @@ expr        : term                      { $$ = $1; }
             ;
 
 term        : NUMBER                    { $$ = $1; }
-            | IDENTIFIER                { $$ = SymbolVal($1); }
+            | IDENTIFIER                { $$ = GetSymbolVal($1); }
             ;
 
-%%                     /* C code */
+%%
 
 int ComputeSymbolIndex(char token)
 {
-    int idx = -1;
+    int idx = 0;
     if (islower(token)) {
         idx = token - 'a' + 26;
     } else if(isupper(token)) {
