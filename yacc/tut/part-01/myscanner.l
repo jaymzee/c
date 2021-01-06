@@ -19,9 +19,7 @@ db_port                 return PORT;
 
 %%
 
-/*
 int yywrap(void)
 {
     return 1;
 }
-*/

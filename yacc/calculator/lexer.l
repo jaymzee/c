@@ -5,7 +5,9 @@
 int c;
 extern int yylval;
 %}
+
 %%
+
 " "         ;
 [a-z]       {
                 c = yytext[0];
