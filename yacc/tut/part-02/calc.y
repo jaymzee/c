@@ -19,30 +19,25 @@ void SetSymbolVal(char symbol, int val);
 %token <num> NUMBER
 %token <id> IDENTIFIER
 %type <num> expr term
-%type <id> assignment
 %start statements
 
 %%
 
-statements  : statement
-            | statements statement
+statements  : /* empty */
+            | statements statement ';'
 
-statement   : assignment ';'            {;}
-            | PRINT expr ';'            { printf("Printing %d\n", $2); }
-            | EXIT ';'                  { exit(EXIT_SUCCESS); }
-            ;
+statement   : assignment
+            | PRINT expr                { printf("Printing %d\n", $2); }
+            | EXIT                      { exit(EXIT_SUCCESS); }
 
 assignment  : IDENTIFIER '=' expr       { SetSymbolVal($1, $3); }
-            ;
 
-expr        : term                      { $$ = $1; }
+expr        : term
             | expr '+' term             { $$ = $1 + $3; }
             | expr '-' term             { $$ = $1 - $3; }
-            ;
 
-term        : NUMBER                    { $$ = $1; }
+term        : NUMBER
             | IDENTIFIER                { $$ = GetSymbolVal($1); }
-            ;
 
 %%
 
@@ -58,14 +53,14 @@ int ComputeSymbolIndex(char token)
 }
 
 /* returns the value of a given symbol */
-int SymbolVal(char symbol)
+int GetSymbolVal(char symbol)
 {
     int bucket = ComputeSymbolIndex(symbol);
     return symbols[bucket];
 }
 
 /* updates the value of a given symbol */
-void UpdateSymbolVal(char symbol, int val)
+void SetSymbolVal(char symbol, int val)
 {
     int bucket = ComputeSymbolIndex(symbol);
     symbols[bucket] = val;
