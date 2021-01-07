@@ -14,6 +14,5 @@
                 yylval.num = yytext[0] - '0';
                 return DIGIT;
             }
-[^a-z0-9\b] {
-                return yytext[0];
-            }
+"**"        return POW;
+[^a-z0-9\b] return yytext[0];
