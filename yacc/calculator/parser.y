@@ -4,11 +4,19 @@ int yylex(void);
 void yyerror(const char *str);
 
 int regs[26];   // symbol table
+#define RegIndex(c) (c - 'a')
 int base;       // current base of integer
 %}
 
+%union {
+    char id;
+    int  num;
+}
 %start list
-%token DIGIT LETTER
+%token <num> DIGIT
+%token <id> LETTER
+%type <num> number expr
+
 %left '|'
 %left '&'
 %left '+' '-'
@@ -23,7 +31,7 @@ list    : /* empty */
         ;
 
 stat    : expr                          { printf("%d\n", $1); }
-        | LETTER '=' expr               { regs[$1] = $3; }
+        | LETTER '=' expr               { regs[RegIndex($1)] = $3; }
         ;
 
 expr    : '(' expr ')'                  { $$ = $2; }
@@ -35,7 +43,7 @@ expr    : '(' expr ')'                  { $$ = $2; }
         | expr '&' expr                 { $$ = $1 & $3; }
         | expr '|' expr                 { $$ = $1 | $3; }
         | '-' expr %prec UMINUS         { $$ = -$2; }
-        | LETTER                        { $$ = regs[$1]; }
+        | LETTER                        { $$ = regs[RegIndex($1)]; }
         | number
         ;
 
