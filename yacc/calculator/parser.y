@@ -30,6 +30,7 @@ int radix;       // radix of current number being parsed
 %%
 
 list    : /* empty */
+        | list '\n'
         | list stat '\n'
         | list error '\n'               { yyerrok; }
         ;

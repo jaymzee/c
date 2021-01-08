@@ -5,7 +5,7 @@
 
 %%
 
-" "         ;
+[ \t]       ;
 [a-z]       {
                 yylval.id = yytext[0];
                 return LETTER;
