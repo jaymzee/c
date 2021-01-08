@@ -8,7 +8,7 @@ int yylex();
 %%
 
 print               return PRINT;
-exit                return EXIT;
+exit|quit           return EXIT;
 [a-zA-Z]            {
                         yylval.id = yytext[0];
                         return IDENTIFIER;
