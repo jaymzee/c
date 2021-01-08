@@ -1,12 +1,12 @@
 %{
-#include "myscanner.h"
+#include "scanner.h"
 %}
 
 %option nounput yylineno
 
 %%
 
-:                       return COLON;
+:                       return yytext[0];
 db_type                 return TYPE;
 db_name                 return NAME;
 db_table_prefix         return TABLE_PREFIX;
