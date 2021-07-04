@@ -20,36 +20,53 @@
 //
 // If you define or =delete any default operation, define or =delete them all.
 //
-class Base {
+class Shape {
+    int cx;
+    int cy;
 protected:
-    virtual ~Base() = default;
+    virtual ~Shape() = default;
+    virtual const char *name() const = 0;
 public:
-    Base() {}
-    Base(const Base&) = delete;
-    Base& operator=(const Base&) = delete;
-    virtual void doSomething() {}
+    Shape() : cx(0), cy(0) {}
+    Shape(const Shape&) = delete;
+    Shape& operator=(const Shape&) = delete;
+    void move(int x, int y) {
+        cx = x;
+        cy = y;
+    }
+    friend std::ostream& operator<<(std::ostream& os, const Shape& s);
 };
 
-class Student : public Base {
-    std::string name;
-    int age;
-public:
-    Student(const std::string name, int age) :
-        name(std::move(name)), age(age) {}
-    friend std::ostream& operator<<(std::ostream& os, const Student& p);
-};
-
-std::ostream& operator<<(std::ostream& os, const Student& p)
+std::ostream& operator<<(std::ostream& os, const Shape& s)
 {
-    os << "{ name: " << p.name << ", age: " << p.age << " }";
+    os << s.name() << " { x: " << s.cx << " y: " << s.cy << " }";
     return os;
 }
 
+class Circle: public Shape {
+    int radius;
+public:
+    Circle(int radius) : radius(radius) {}
+    const char *name() const { return "Circle"; }
+};
+
+class Rectangle: public Shape {
+    int width;
+    int height;
+public:
+    Rectangle(int width, int height) : width(width), height(height) {}
+    const char *name() const { return "Rectangle"; }
+};
+
 int main(int argc, char *argv[])
 {
-    auto s = std::make_unique<Student>("joe", 42);
+    Circle c(5);
+    Rectangle r(3,4);
 
-    std::cout << *s << std::endl;
+    Shape &s = r;
+
+    s.move(4, 5);
+    std::cout << s << std::endl;
 
     return 0;
 }
