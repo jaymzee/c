@@ -19,12 +19,12 @@ int radix;       // radix of current number being parsed
 %token <id> LETTER
 %type <num> number expr
 
-%right POW          /* exponentiation operator */
 %left '|'           /* bitwise or */
 %left '^'           /* bitwise xor */
 %left '&'           /* bitwise and */
 %left '+' '-'       /* addition and subtraction */
 %left '*' '/' '%'   /* multiply divide mod */
+%right POW          /* exponentiation operator */
 %left UMINUS        /* supplies precedence for unary minus */
 
 %%
