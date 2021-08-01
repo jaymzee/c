@@ -6,8 +6,9 @@
 int main(int argc, char *argv[])
 {
     FILE *fp;
-    const char *filename, *encoded;
-    unsigned char *buf;
+    const char *filename;
+    unsigned char *data;
+    char *encoded;
     size_t len, encoded_len;
     int wrap = 72;
 
@@ -30,21 +31,24 @@ int main(int argc, char *argv[])
     fseek(fp, 0L, SEEK_END);
     len = ftell(fp);
     rewind(fp);
-    buf = malloc(len);
-    if (buf == NULL) {
+    data = malloc(len);
+    if (data == NULL) {
         perror("failed to allocate memory");
         exit(EXIT_FAILURE);
     }
-    if (fread(buf, 1, len, fp) != len) {
+    if (fread(data, 1, len, fp) != len) {
         perror(filename);
         exit(EXIT_FAILURE);
     }
 
     /* base64 encode the file */
-    encoded = base64_encode(buf, len, wrap, &encoded_len);
+    encoded = base64_encode(data, len, wrap, &encoded_len);
 
-    /* printf("length: %zu (%zu encoded)\n", len, encoded_len); */
+    // printf("length: %zu (%zu encoded)\n", len, encoded_len);
     printf("%s", encoded);
+
+    free(encoded);
+    free(data);
 
     exit(EXIT_SUCCESS);
 }
