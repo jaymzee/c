@@ -31,9 +31,9 @@ int stty_size(struct screen *scr)
     /* Open the command for reading. */
     fp = popen("stty size", "r");
     if (fp == NULL) {
-        // fp is not null on popen errors on windows
-        // instead the error is sent to stderr during the
-        // fgets call below which is really weird.
+        // fp is not null on popen errors
+        // it seems the cmd is not executed until it's
+        // read below.
 
         // indicate failure
         return 0;
@@ -42,7 +42,7 @@ int stty_size(struct screen *scr)
     fgets(buf, sizeof(buf), fp);
     pclose(fp);
 
-    // this little check because of windows mentioned above
+    // check the cmd actually executed
     int len = strlen(buf);
     if (len < 4 || len > 10) {
         return 0;
