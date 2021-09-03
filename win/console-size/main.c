@@ -16,7 +16,6 @@ struct screen {
 
 void get_console_size(struct screen *scr) {
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    int columns, rows;
 
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
     scr->cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
