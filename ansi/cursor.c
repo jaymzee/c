@@ -1,4 +1,7 @@
 #include <stdio.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 void getCursor(int *x, int *y)
 {
@@ -13,7 +16,17 @@ int main()
 {
     int x, y;
 
-    printf("querying cursor position...\n");
+#ifdef _WIN32
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode = 0;
+
+    GetConsoleMode(h, &mode);
+    mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(h, mode);
+    printf("SetConsoleMode(%d)\n", mode);
+#endif
+
+    printf("querying \x1b[31mcursor\x1b[m position...\n");
     getCursor(&x, &y);
     printf("%d %d\n", y, x);
 }
