@@ -32,7 +32,7 @@ void getTerminalSize(int *lines, int *cols)
 void getTerminalResolution(int *xres, int *yres)
 {
     printf("\033[14t");
-    scanf("\033[4;%d;%dt", xres, yres);
+    scanf("\033[4;%d;%dt", yres, xres);
 }
 
 int main()
