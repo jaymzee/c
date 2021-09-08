@@ -5,11 +5,9 @@
 
 void getCursor(int *x, int *y)
 {
-   printf("\033[6n");  /* This escape sequence !writes! the current
-                          coordinates to the terminal.
-                          We then have to read it from there, see [4,5].
-                          Needs <termios.h>,<unistd.h> and some others */
-   scanf("\033[%d;%dR", x, y);
+   // This escape sequence queries the current coordinates from the terminal.
+   printf("\033[6n");
+   scanf("\033[%d;%dR", y, x);
 }
 
 int main()
