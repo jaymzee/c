@@ -30,6 +30,8 @@ int main()
 
     for (int i = 0; i < 100; i++) {
         fb[i] = 0xff0000;
+        fb[2048 + i] = 0x00ff00;
+        fb[4096 + i] = 0x0000ff;
     }
 
     return 0;
