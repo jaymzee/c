@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
 
 
     printf("%dx%dx%d\n", fbInfo.xres, fbInfo.yres, fbInfo.bits_per_pixel);
+    printf("virtual: %dx%d\n", fbInfo.xres_virtual, fbInfo.yres_virtual);
     // reason for pad: does the stride have to be a multiple
     // of 128 or something else?
     long pad = 0;
@@ -67,8 +68,12 @@ int main(int argc, char *argv[])
         }
     } else {
         if (fbInfo.xres % 256) {
-            printf("xres is %d, you probably should provide a pad\n%s %d\n",
-                   fbInfo.xres, argv[0], fbInfo.xres % 256);
+            printf("you probably should provide a pad\n%s %d\n",
+                   argv[0], fbInfo.xres % 256);
+        }
+        if (fbInfo.xres_virtual - fbInfo.xres) {
+            printf("you probably should provide a pad\n%s %d\n",
+                   argv[0], fbInfo.xres_virtual - fbInfo.xres);
         }
     }
     if (pad) {
