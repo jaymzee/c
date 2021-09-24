@@ -37,23 +37,40 @@ void draw_colors(uint32_t *fb, uint32_t xres, uint32_t yres, uint32_t pad)
     }
 }
 
+// 32x16 font blocky (stretched 8x8 font)
 void draw_text(uint32_t *fb, struct fb_var_screeninfo *fbinfo,
-               char *str, int x, int y)
+               char *str, int x, int y, int color)
 {
+    int stride = fbinfo->xres_virtual;
     for (int n = 0; str[n]; n++) {
         uint8_t c = str[n] & 0x7f; // strip off 8th bit
         for (int i = 0; i < 8; i++) {
             uint8_t d = font8x8_basic[c][i];
             for (int j = 0; j < 8; j++) {
+                int offset = x + j*2 + (y+i*4)*stride;
                 if (d & 1) {
-                    fb[x + j + (y+i)*fbinfo->xres_virtual] = 0x00ff00;
+                    fb[offset] = color;
+                    fb[offset + 1] = color;
+                    fb[offset + stride] = color;
+                    fb[offset + stride + 1] = color;
+                    fb[offset + 2*stride] = color;
+                    fb[offset + 2*stride + 1] = color;
+                    fb[offset + 3*stride] = color;
+                    fb[offset + 3*stride + 1] = color;
                 } else {
-                    fb[x + j + (y+i)*fbinfo->xres_virtual] = 0x000000;
+                    fb[offset] = 0;
+                    fb[offset + 1] = 0;
+                    fb[offset + stride] = 0;
+                    fb[offset + stride + 1] = 0;
+                    fb[offset + 2*stride] = 0;
+                    fb[offset + 2*stride + 1] = 0;
+                    fb[offset + 3*stride] = 0;
+                    fb[offset + 3*stride + 1] = 0;
                 }
                 d = d >> 1;
             }
         }
-        x += 8;
+        x += 16;
     }
 }
 
@@ -110,7 +127,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    draw_text(fb, &fbInfo, "hello, world!", 0, 0);
+    draw_text(fb, &fbInfo, "hello, world!", 0, 0, 0x00ff00);
+    draw_text(fb, &fbInfo, "bye for now", 0, 32, 0xffff00);
 
     munmap(fb, fbInfo.xres * fbInfo.yres);
 
