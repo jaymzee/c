@@ -10,6 +10,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "font8x8_basic.h"
+
 #define FBDEV "/dev/fb0"
 
 void draw_colors(uint32_t *fb, uint32_t xres, uint32_t yres, uint32_t pad)
@@ -32,6 +34,26 @@ void draw_colors(uint32_t *fb, uint32_t xres, uint32_t yres, uint32_t pad)
                 fb[offset+k] = colors[j];
             }
         }
+    }
+}
+
+void draw_text(uint32_t *fb, struct fb_var_screeninfo *fbinfo,
+               char *str, int x, int y)
+{
+    for (int n = 0; str[n]; n++) {
+        uint8_t c = str[n] & 0x7f; // strip off 8th bit
+        for (int i = 0; i < 8; i++) {
+            uint8_t d = font8x8_basic[c][i];
+            for (int j = 0; j < 8; j++) {
+                if (d & 1) {
+                    fb[x + j + (y+i)*fbinfo->xres_virtual] = 0x00ff00;
+                } else {
+                    fb[x + j + (y+i)*fbinfo->xres_virtual] = 0x000000;
+                }
+                d = d >> 1;
+            }
+        }
+        x += 8;
     }
 }
 
@@ -61,46 +83,14 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    //set resolution/dpi/color depth/.. in varInfo, then write it back
-    // ioctl( fdScreen, FBIOPUT_VSCREENINFO, &varInfo );
-
-
-    printf("%dx%dx%d\n", fbInfo.xres, fbInfo.yres, fbInfo.bits_per_pixel);
-    printf("virtual: %dx%d\n", fbInfo.xres_virtual, fbInfo.yres_virtual);
-    // reason for pad: does the stride have to be a multiple
-    // of 128 or something else?
-    long pad = 0;
-
-    if (argc > 2) {
-        ypos = atoi(argv[2]);
-    }
-
-    // check args to override pad
     if (argc > 1) {
-        errno = 0;
-        pad = strtol(argv[1], NULL, 10);
-        if (errno || pad < 0 || pad > 4096) {
-            perror("invalid value for pad");
-            exit(1);
-        }
-    } else {
-        if (fbInfo.xres % 256) {
-            printf("you probably should provide a pad\n%s %d\n",
-                   argv[0], fbInfo.xres % 256);
-        }
-        if (fbInfo.xres_virtual - fbInfo.xres) {
-            printf("you probably should provide a pad\n%s %d\n",
-                   argv[0], fbInfo.xres_virtual - fbInfo.xres);
-        }
+        ypos = atoi(argv[1]);
     }
-    if (pad) {
-        printf("using pad of %ld pixels\n", pad);
-    }
-    printf("%d x %d\n", fbInfo.xres, fbInfo.yres);
 
+    long pad = fbInfo.xres_virtual - fbInfo.xres;
     long pagesize = sysconf(_SC_PAGE_SIZE);
-    printf("pagesize: %ld\n", pagesize);
 
+    printf("pad: %ld\n", pad);
 
     int fd = open(FBDEV, O_RDWR);
     if (fd < 0) {
@@ -120,7 +110,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    draw_colors(fb, fbInfo.xres, fbInfo.yres, pad);
+    draw_text(fb, &fbInfo, "hello, world!", 0, 0);
 
     munmap(fb, fbInfo.xres * fbInfo.yres);
 
