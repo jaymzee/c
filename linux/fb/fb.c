@@ -25,7 +25,7 @@ void draw_colors(uint32_t *fb, uint32_t xres, uint32_t yres, uint32_t pad)
         0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff,
         0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff
     };
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i < 1024; i++) {
         for (int j = 0; j < 56; j++) {
             int offset = i*(xres+pad) + 10*j;
             for (int k = 0; k < 10; k++) {
@@ -47,7 +47,6 @@ void query_framebuffer(const char *device, struct fb_var_screeninfo *fbinfo) {
 
 int main(int argc, char *argv[])
 {
-    int ypos = 0;
     struct fb_var_screeninfo fbInfo;
     query_framebuffer(FBDEV, &fbInfo);
 
@@ -70,10 +69,6 @@ int main(int argc, char *argv[])
     // reason for pad: does the stride have to be a multiple
     // of 128 or something else?
     long pad = 0;
-
-    if (argc > 2) {
-        ypos = atoi(argv[2]);
-    }
 
     // check args to override pad
     if (argc > 1) {
@@ -108,12 +103,13 @@ int main(int argc, char *argv[])
         exit(1);
     }
     //get writable screen memory; 32bit color
+    uint32_t length = 4 * (fbInfo.xres + pad) * fbInfo.yres;
     uint32_t *fb = mmap(NULL,
-                        (fbInfo.xres + pad) * fbInfo.yres,
+                        length,
                         PROT_READ | PROT_WRITE,
                         MAP_SHARED,
                         fd,
-                        4 * (fbInfo.xres + pad) * ypos);
+                        0);
 
     if (fb == NULL) {
         printf("mmap fb failed\n");
@@ -122,7 +118,7 @@ int main(int argc, char *argv[])
 
     draw_colors(fb, fbInfo.xres, fbInfo.yres, pad);
 
-    munmap(fb, fbInfo.xres * fbInfo.yres);
+    munmap(fb, length);
 
     return 0;
 }

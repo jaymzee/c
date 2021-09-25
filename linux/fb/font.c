@@ -86,7 +86,6 @@ void query_framebuffer(const char *device, struct fb_var_screeninfo *fbinfo) {
 
 int main(int argc, char *argv[])
 {
-    int ypos = 0;
     struct fb_var_screeninfo fbInfo;
     query_framebuffer(FBDEV, &fbInfo);
 
@@ -100,27 +99,19 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    if (argc > 1) {
-        ypos = atoi(argv[1]);
-    }
-
-    long pad = fbInfo.xres_virtual - fbInfo.xres;
-    long pagesize = sysconf(_SC_PAGE_SIZE);
-
-    printf("pad: %ld\n", pad);
-
     int fd = open(FBDEV, O_RDWR);
     if (fd < 0) {
         perror(FBDEV);
         exit(1);
     }
     //get writable screen memory; 32bit color
+    uint32_t length = 4 * fbInfo.xres_virtual * fbInfo.yres;
     uint32_t *fb = mmap(NULL,
-                        (fbInfo.xres + pad) * fbInfo.yres,
+                        length,
                         PROT_READ | PROT_WRITE,
                         MAP_SHARED,
                         fd,
-                        4 * (fbInfo.xres + pad) * ypos);
+                        0);
 
     if (fb == NULL) {
         printf("mmap fb failed\n");
@@ -130,7 +121,7 @@ int main(int argc, char *argv[])
     draw_text(fb, &fbInfo, "hello, world!", 0, 0, 0x00ff00);
     draw_text(fb, &fbInfo, "bye for now", 0, 32, 0xffff00);
 
-    munmap(fb, fbInfo.xres * fbInfo.yres);
+    munmap(fb, length);
 
     return 0;
 }
