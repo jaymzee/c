@@ -14,28 +14,10 @@
 
 #define FBDEV "/dev/fb0"
 
-void draw_colors(uint32_t *fb, uint32_t xres, uint32_t yres, uint32_t pad)
-{
-    // draw some color bars
-    uint32_t colors[56] = {
-        0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff,
-        0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff,
-        0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff,
-        0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff,
-        0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff,
-        0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff,
-        0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff,
-        0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff
-    };
-    for (int i = 0; i < 256; i++) {
-        for (int j = 0; j < 56; j++) {
-            int offset = i*(xres+pad) + 10*j;
-            for (int k = 0; k < 10; k++) {
-                fb[offset+k] = colors[j];
-            }
-        }
-    }
-}
+#define RED    0xFF0000
+#define YELLOW 0xFFFF00
+#define GREEN  0x00FF00
+#define BLUE   0x0000FF
 
 // 32x16 font blocky (stretched 8x8 font)
 void draw_text(uint32_t *fb, struct fb_var_screeninfo *fbinfo,
@@ -118,8 +100,10 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    draw_text(fb, &fbInfo, "hello, world!", 0, 0, 0x00ff00);
-    draw_text(fb, &fbInfo, "bye for now", 0, 32, 0xffff00);
+    draw_text(fb, &fbInfo, "hello, world!", 0, 0, GREEN);
+    draw_text(fb, &fbInfo, "!\"#$%&'()*+,-./0123456789:;<=>@", 0, 32, YELLOW);
+    draw_text(fb, &fbInfo, "ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`", 0, 64, YELLOW);
+    draw_text(fb, &fbInfo, "abcdefghijklmnopqrstuvwxyz{|}~", 0, 96, YELLOW);
 
     munmap(fb, length);
 

@@ -25,7 +25,7 @@ void draw_colors(uint32_t *fb, uint32_t xres, uint32_t yres, uint32_t pad)
         0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff,
         0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x00ffff, 0x0000ff, 0x8000ff
     };
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < 256; i++) {
         for (int j = 0; j < 56; j++) {
             int offset = i*(xres+pad) + 10*j;
             for (int k = 0; k < 10; k++) {
@@ -35,67 +35,72 @@ void draw_colors(uint32_t *fb, uint32_t xres, uint32_t yres, uint32_t pad)
     }
 }
 
-void query_framebuffer(const char *device, struct fb_var_screeninfo *fbinfo) {
+void query_fb_var(const char *device, struct fb_var_screeninfo *fbvar) {
     int fd = open(device, O_RDWR);
     if (fd < 0) {
         perror(device);
         exit(1);
     }
-    ioctl(fd, FBIOGET_VSCREENINFO, fbinfo);
+    ioctl(fd, FBIOGET_VSCREENINFO, fbvar);
+    close(fd);
+}
+
+void query_fb_fix(const char *device, struct fb_fix_screeninfo *fbfix) {
+    int fd = open(device, O_RDWR);
+    if (fd < 0) {
+        perror(device);
+        exit(1);
+    }
+    ioctl(fd, FBIOGET_FSCREENINFO, fbfix);
+    close(fd);
+}
+
+void pan(const char *device, struct fb_var_screeninfo *fbvar)
+{
+    int fd = open(device, O_RDWR);
+    if (fd < 0) {
+        perror(device);
+        exit(1);
+    }
+    ioctl(fd, FBIOPAN_DISPLAY, fbvar);
     close(fd);
 }
 
 int main(int argc, char *argv[])
 {
-    struct fb_var_screeninfo fbInfo;
-    query_framebuffer(FBDEV, &fbInfo);
+    struct fb_var_screeninfo fbvar;
+    struct fb_fix_screeninfo fbfix;
+
+    query_fb_var(FBDEV, &fbvar);
+    query_fb_fix(FBDEV, &fbfix);
 
     // validate fbinfo
-    if (!fbInfo.xres || !fbInfo.yres) {
+    if (!fbvar.xres || !fbvar.yres) {
         fprintf(stderr, "invalid framebuffer resolution\n");
         exit(1);
     }
-    if (fbInfo.bits_per_pixel != 32) {
+    if (fbvar.bits_per_pixel != 32) {
         fprintf(stderr, "32 bpp expected\n");
         exit(1);
     }
 
+    long pad = (fbfix.line_length / 4) - fbvar.xres;
+
+    printf("fb-id: %s\n", fbfix.id);
+    printf("fb-smem start/len: %lx %d\n", fbfix.smem_start, fbfix.smem_len);
+    printf("fb-type: %d\n", fbfix.type);  // 0: packed pixels
+    printf("fb-xpanstep: %d\n", fbfix.xpanstep);
+    printf("fb-ypanstep: %d\n", fbfix.ypanstep);
+    if (fbfix.visual & FB_VISUAL_TRUECOLOR) {
+        printf("true color\n");
+    }
+    printf("fb-accel: %x\n", fbfix.accel);
+
     //set resolution/dpi/color depth/.. in varInfo, then write it back
     // ioctl( fdScreen, FBIOPUT_VSCREENINFO, &varInfo );
 
-
-    printf("%dx%dx%d\n", fbInfo.xres, fbInfo.yres, fbInfo.bits_per_pixel);
-    printf("virtual: %dx%d\n", fbInfo.xres_virtual, fbInfo.yres_virtual);
-    // reason for pad: does the stride have to be a multiple
-    // of 128 or something else?
-    long pad = 0;
-
-    // check args to override pad
-    if (argc > 1) {
-        errno = 0;
-        pad = strtol(argv[1], NULL, 10);
-        if (errno || pad < 0 || pad > 4096) {
-            perror("invalid value for pad");
-            exit(1);
-        }
-    } else {
-        if (fbInfo.xres % 256) {
-            printf("you probably should provide a pad\n%s %d\n",
-                   argv[0], fbInfo.xres % 256);
-        }
-        if (fbInfo.xres_virtual - fbInfo.xres) {
-            printf("you probably should provide a pad\n%s %d\n",
-                   argv[0], fbInfo.xres_virtual - fbInfo.xres);
-        }
-    }
-    if (pad) {
-        printf("using pad of %ld pixels\n", pad);
-    }
-    printf("%d x %d\n", fbInfo.xres, fbInfo.yres);
-
-    long pagesize = sysconf(_SC_PAGE_SIZE);
-    printf("pagesize: %ld\n", pagesize);
-
+    printf("%dx%dx%d  ", fbvar.xres, fbvar.yres, fbvar.bits_per_pixel);
+    printf("(%dx%d virtual)\n", fbvar.xres_virtual, fbvar.yres_virtual);
 
     int fd = open(FBDEV, O_RDWR);
     if (fd < 0) {
@@ -103,7 +108,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
     //get writable screen memory; 32bit color
-    uint32_t length = 4 * (fbInfo.xres + pad) * fbInfo.yres;
+    uint32_t length = 4 * (fbvar.xres + pad) * fbvar.yres;
     uint32_t *fb = mmap(NULL,
                         length,
                         PROT_READ | PROT_WRITE,
@@ -116,7 +121,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    draw_colors(fb, fbInfo.xres, fbInfo.yres, pad);
+    draw_colors(fb, fbvar.xres, fbvar.yres, pad);
 
     munmap(fb, length);
 
