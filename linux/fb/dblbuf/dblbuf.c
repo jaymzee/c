@@ -69,7 +69,8 @@ void vsync2(int fd)
     ioctl(fd, OMAPFB_WAITFORVSYNC_FRAME, &arg);
 }
 
-void microsleep(unsigned int usec) {
+void microsleep(unsigned int usec)
+{
     struct timespec req, rem;
 
     unsigned int sec = usec / 1000000;
@@ -77,6 +78,21 @@ void microsleep(unsigned int usec) {
     req.tv_sec = sec;
     req.tv_nsec = usec * 1000;
     nanosleep(&req, &rem);
+}
+
+void pan(int fd, int yoffset)
+{
+    struct fb_var_screeninfo fbvar;
+    if (ioctl(fd, FBIOGET_VSCREENINFO, &fbvar) < 0) {
+        perror("FBIOGET_VSCREENINFO");
+        exit(1);
+    }
+    fbvar.yoffset = yoffset;
+
+    if (ioctl(fd, FBIOPAN_DISPLAY, &fbvar) < 0) {
+        perror("PAN_DISPLAY");
+        exit(1);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -135,16 +151,19 @@ int main(int argc, char *argv[])
     }
 
     draw_colors(fb, fbvar.xres, fbvar.yres, pad);
-    sleep(1);
 
-    fbvar.yoffset = fbvar.yres;
-    ioctl(fd, FBIOPAN_DISPLAY, &fbvar);
+    for (int j = 0; j < 10; j++) {
+        for (int i = 0; i < 16; i++) {
+            microsleep(60000);
+            pan(fd, i);
+        }
+        for (int i = 0; i < 16; i++) {
+            microsleep(60000);
+            pan(fd, 15 - i);
+        }
+    }
 
-    sleep(1);
-
-    fbvar.yoffset = 0;
-    ioctl(fd, FBIOPAN_DISPLAY, &fbvar);
-
+    pan(fd, 0);
     munmap(fb, length);
     close(fd);
 
