@@ -33,6 +33,20 @@ static ssize_t device_file_read(
     return count;
 }
 
+void query_apic(void)
+{
+    uint32_t lo, hi;
+    volatile uint32_t *apic;
+
+    cpuGetMSR(0x1B, &lo, &hi);
+    printk(KERN_NOTICE "Simple-driver: MSR 0x1B: lo = %08x, hi = %08x\n", lo, hi);
+    printk(KERN_NOTICE "Simple-driver: APIC BASE: %16lx\n", APIC_BASE);
+    apic = (void *)APIC_BASE;
+    printk(KERN_NOTICE "Simple-driver: APIC[20h] = %08x\n", apic[0x20]);
+    printk(KERN_NOTICE "Simple-driver: APIC[30h] = %08x\n", apic[0x30]);
+    printk(KERN_NOTICE "Simple-driver: APIC[F0h] = %08x\n", apic[0xf0]);
+}
+
 static ssize_t device_file_write(
     struct file *file_ptr,
     const char __user *user_buffer,
@@ -49,6 +63,9 @@ static ssize_t device_file_write(
     copy_from_user(kbuf, user_buffer, count);
     for (i = 0; i < count; i++) {
         printk(KERN_NOTICE "Simple-driver: data written %02x\n", kbuf[i]);
+    }
+    if (kbuf[0] == 'A') {
+        query_apic();
     }
     kfree(kbuf);
     *position += count;
