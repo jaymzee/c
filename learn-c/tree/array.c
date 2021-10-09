@@ -3,12 +3,18 @@
 
 /*
  * binary tree array implementation
- * a binary tree can be stored in an array
+ * a binary tree can be stored in an array (linearized binary tree)
                  0
            1            2
         3     4      5     6
        7 8   9 10  11 12 13 14
+
+left child = 2 * index + 1
+right child = 2 * index + 2
+parent = (index - 1) / 2
+sibling = (index - 1) ^ 1 + 1
 */
+
 
 #define LEFT 1
 #define RIGHT 2
