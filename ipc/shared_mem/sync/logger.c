@@ -4,15 +4,15 @@
  *                 (Server process)
  */
 
+#include <fcntl.h>
+#include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string.h>
-#include <unistd.h>
-#include <semaphore.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "common.h"
 
 #define LOGFILE "/tmp/example.log"
@@ -21,7 +21,7 @@ struct shared_memory *shm_ptr;
 sem_t *mutex_sem, *buffer_count_sem, *spool_signal_sem;
 
 void panic(char *msg);
-void server(int fd_log);
+void logger(int fd_log);
 
 int main(int argc, char **argv)
 {
@@ -77,14 +77,14 @@ int main(int argc, char **argv)
         panic(SHARED_MEM_NAME);
     }
     // Initialize the shared memory
-    shm_ptr->buffer_index = shm_ptr->buffer_print_index = 0;
+    shm_ptr->buf_index = shm_ptr->buf_print_index = 0;
 
     // Initialization complete
 
-    server(fd_log);
+    logger(fd_log);
 }
 
-void server(int fd_log)
+void logger(int fd_log)
 {
     char mybuf[256];
 
@@ -100,13 +100,13 @@ void server(int fd_log)
             panic("sem_wait: spool_signal_sem");
         }
 
-        strcpy(mybuf, shm_ptr->buf[shm_ptr->buffer_print_index]);
+        strcpy(mybuf, shm_ptr->buf[shm_ptr->buf_print_index]);
 
         /* Since there is only one process (the logger) using the
            buffer_print_index, mutex semaphore is not necessary */
-        (shm_ptr->buffer_print_index)++;
-        if (shm_ptr->buffer_print_index == MAX_BUFFERS) {
-            shm_ptr->buffer_print_index = 0;
+        (shm_ptr->buf_print_index)++;
+        if (shm_ptr->buf_print_index == MAX_BUFFERS) {
+            shm_ptr->buf_print_index = 0;
         }
 
         /* Contents of one buffer has been printed.

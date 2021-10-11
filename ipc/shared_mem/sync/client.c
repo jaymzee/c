@@ -4,16 +4,16 @@
  *
  */
 
+#include <fcntl.h>
+#include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include <semaphore.h>
-#include <sys/mman.h>
 #include "common.h"
 
 struct shared_memory *shm_ptr;
@@ -93,11 +93,11 @@ void client(void)
         {
             time_t now = time(NULL);
             char *now_s = strip_newline(ctime(&now));
-            sprintf(shm_ptr->buf[shm_ptr->buffer_index], "%d: %s %s\n",
+            sprintf(shm_ptr->buf[shm_ptr->buf_index], "%d: %s %s\n",
                     getpid(), now_s, msg);
-            (shm_ptr->buffer_index)++;
-            if (shm_ptr->buffer_index == MAX_BUFFERS) {
-                shm_ptr->buffer_index = 0;
+            (shm_ptr->buf_index)++;
+            if (shm_ptr->buf_index == MAX_BUFFERS) {
+                shm_ptr->buf_index = 0;
             }
         }
 

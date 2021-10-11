@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall
 LDFLAGS = -lrt -lpthread
-OBJS = client server
+OBJS = client logger
 
 all: $(OBJS)
 
