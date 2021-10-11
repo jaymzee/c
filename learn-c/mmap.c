@@ -19,6 +19,10 @@ int main()
 
     //p = mmap(NULL, 256, PROT_READ, MAP_PRIVATE, fd, 0);
     p = mmap(NULL, 256, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (p == MAP_FAILED) {
+        perror("mmap");
+        exit(1);
+    }
     printf("%02X\n", 0xFF & p[0]);
     p[0] = 42;
     munmap(p, 256);

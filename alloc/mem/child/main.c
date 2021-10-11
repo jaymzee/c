@@ -40,6 +40,10 @@ int main(int argc, char *argv[])
 
     show_memory();
     data = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    if (data == MAP_FAILED) {
+        perror("mmap shared");
+        exit(1);
+    }
     strcpy(data, "hello from parent!");
 
     pid = fork();

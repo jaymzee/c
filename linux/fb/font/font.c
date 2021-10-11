@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
                         fd,
                         0);
 
-    if (fb == NULL) {
+    if (fb == MAP_FAILED) {
         printf("mmap fb failed\n");
         exit(1);
     }
