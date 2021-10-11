@@ -17,72 +17,109 @@
 
 #define LOGFILE "/tmp/example.log"
 
+struct shared_memory *shm_ptr;
+sem_t *mutex_sem, *buffer_count_sem, *spool_signal_sem;
+
 void panic(char *msg);
+void server(int fd_log);
 
 int main(int argc, char **argv)
 {
-    struct shared_memory *shared_mem_ptr;
-    sem_t *mutex_sem, *buffer_count_sem, *spool_signal_sem;
-    int fd_shm, fd_log;
-    char mybuf[256];
+    int fd_log, fd_shm;
 
     // Open log file
-    if ((fd_log = open(LOGFILE, O_CREAT | O_WRONLY | O_APPEND | O_SYNC, 0666)) == -1)
+    fd_log = open(LOGFILE, O_CREAT | O_WRONLY | O_APPEND | O_SYNC, 0666);
+    if (fd_log < 0) {
         panic(LOGFILE);
+    }
 
-    // mutual exclusion semaphore, mutex_sem with an initial value 0.
-    if ((mutex_sem = sem_open(SEM_MUTEX_NAME, O_CREAT, 0660, 0)) == SEM_FAILED)
+    // mutual exclusion semaphore, mutex_sem with an initial value 0
+    mutex_sem = sem_open(SEM_MUTEX_NAME, O_CREAT, 0660, 0);
+    if (mutex_sem == SEM_FAILED) {
         panic(SEM_MUTEX_NAME);
+    }
+
+    // counting semaphore, indicating the number of available buffers.
+    // initial value = MAX_BUFFERS
+    buffer_count_sem = sem_open(SEM_BUFFER_COUNT_NAME,
+                                O_CREAT | O_EXCL,
+                                0660,
+                                MAX_BUFFERS);
+    if (buffer_count_sem == SEM_FAILED) {
+        panic(SEM_BUFFER_COUNT_NAME);
+    }
+
+    // counting semaphore, indicating the number of strings to be printed.
+    // initial value = 0
+    spool_signal_sem = sem_open(SEM_SPOOL_SIGNAL_NAME,
+                                O_CREAT | O_EXCL,
+                                0660,
+                                0);
+    if (spool_signal_sem == SEM_FAILED) {
+        panic(SEM_SPOOL_SIGNAL_NAME);
+    }
 
     // Get shared memory
-    if ((fd_shm = shm_open(SHARED_MEM_NAME, O_RDWR | O_CREAT | O_EXCL, 0660)) == -1)
+    fd_shm = shm_open(SHARED_MEM_NAME, O_RDWR | O_CREAT | O_EXCL, 0660);
+    if (fd_shm < 0) {
         panic(SHARED_MEM_NAME);
-
-    if (ftruncate(fd_shm, sizeof(struct shared_memory)) == -1)
+    }
+    if (ftruncate(fd_shm, sizeof(struct shared_memory)) < 0) {
        panic(SHARED_MEM_NAME);
-
-    if ((shared_mem_ptr = mmap(NULL, sizeof(struct shared_memory),
-                               PROT_READ | PROT_WRITE, MAP_SHARED,
-                               fd_shm, 0)) == MAP_FAILED)
-       panic(SHARED_MEM_NAME);
+    }
+    shm_ptr = mmap(NULL,
+                   sizeof(struct shared_memory),
+                   PROT_READ | PROT_WRITE,
+                   MAP_SHARED,
+                   fd_shm,
+                   0);
+    if (shm_ptr == MAP_FAILED) {
+        panic(SHARED_MEM_NAME);
+    }
     // Initialize the shared memory
-    shared_mem_ptr -> buffer_index = shared_mem_ptr -> buffer_print_index = 0;
+    shm_ptr->buffer_index = shm_ptr->buffer_print_index = 0;
 
-    // counting semaphore, indicating the number of available buffers. Initial value = MAX_BUFFERS
-    if ((buffer_count_sem = sem_open(SEM_BUFFER_COUNT_NAME, O_CREAT | O_EXCL, 0660, MAX_BUFFERS)) == SEM_FAILED)
-        panic(SEM_BUFFER_COUNT_NAME);
+    // Initialization complete
 
-    // counting semaphore, indicating the number of strings to be printed. Initial value = 0
-    if ((spool_signal_sem = sem_open(SEM_SPOOL_SIGNAL_NAME, O_CREAT | O_EXCL, 0660, 0)) == SEM_FAILED)
-        panic(SEM_SPOOL_SIGNAL_NAME);
+    server(fd_log);
+}
 
-    // Initialization complete; now we can set mutex semaphore as 1 to
+void server(int fd_log)
+{
+    char mybuf[256];
+
+    // we can set mutex semaphore as 1 to
     // indicate shared memory segment is available
-    if (sem_post(mutex_sem) == -1)
+    if (sem_post(mutex_sem) < 0) {
         panic("sem_post: mutex_sem");
+    }
 
     while (1) {  // forever
-        // Is there a string to print? P (spool_signal_sem);
-        if (sem_wait(spool_signal_sem) == -1)
+        // Is there a string to print? P(spool_signal_sem);
+        if (sem_wait(spool_signal_sem) < 0) {
             panic("sem_wait: spool_signal_sem");
+        }
 
-        strcpy(mybuf, shared_mem_ptr -> buf[shared_mem_ptr -> buffer_print_index]);
+        strcpy(mybuf, shm_ptr->buf[shm_ptr->buffer_print_index]);
 
-        /* Since there is only one process (the logger) using the 
+        /* Since there is only one process (the logger) using the
            buffer_print_index, mutex semaphore is not necessary */
-        (shared_mem_ptr -> buffer_print_index)++;
-        if (shared_mem_ptr -> buffer_print_index == MAX_BUFFERS)
-           shared_mem_ptr -> buffer_print_index = 0;
+        (shm_ptr->buffer_print_index)++;
+        if (shm_ptr->buffer_print_index == MAX_BUFFERS) {
+            shm_ptr->buffer_print_index = 0;
+        }
 
         /* Contents of one buffer has been printed.
            One more buffer is available for use by producers.
-           Release buffer: V (buffer_count_sem);  */
-        if (sem_post(buffer_count_sem) == -1)
+           Release buffer: V(buffer_count_sem);  */
+        if (sem_post(buffer_count_sem) < 0) {
             panic("sem_post: buffer_count_sem");
+        }
 
         // write the string to file
-        if (write(fd_log, mybuf, strlen(mybuf)) != strlen(mybuf))
+        if (write(fd_log, mybuf, strlen(mybuf)) != strlen(mybuf)) {
             panic("write: logfile");
+        }
     }
 }
 
