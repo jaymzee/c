@@ -1,3 +1,13 @@
+/*
+ * C11 has the _Alignas keyword and defines alignas as a preprocessor macro
+ * expanding to the keyword in the header <stdalign.h>
+ *
+ * Syntax
+ *  alignas(expression)
+ *  alignas(type-id)
+ *  alignas(pack...)
+ */
+
 #include <stdio.h>
 #include <stdalign.h>
 
@@ -21,6 +31,11 @@ int main()
     printf("%d\n", sizeof(struct foo));
     printf("y: %p\n", &y);
     printf("z: %p\n", &z);
+
+    printf("char: %d %d\n", sizeof(char), alignof(char));
+    printf("int: %d %d\n", sizeof(int), alignof(int));
+    printf("double: %d %d\n", sizeof(double), alignof(double));
+    printf("void *: %d %d\n", sizeof(void *), alignof(void *));
 
     return 0;
 }
