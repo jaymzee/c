@@ -1,10 +1,12 @@
+#include <stdalign.h>
 #include <stddef.h>
-#include <unistd.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #define NALLOC 128  // units to allocate at once
 
 typedef struct header { // free block header
+    alignas(2 * sizeof(void *))
     struct header *next;  // next free block
     size_t size; // size of this free block in units
 } Header;
@@ -246,13 +248,13 @@ int main(int argc, char *argv[])
 {
     void *ptr1, *ptr2;
 
-    printf("sizeof(HEADER) = %d\n", sizeof(Header));
+    printf("sizeof(Header) = %d\n", sizeof(Header));
 
     ptr1 = kr_malloc(2048);
     ptr2 = kr_malloc(1024);
-    printf("ptr1: %p\n", ptr1);
-    printf("ptr2: %p\n", ptr2);
+    printf("ptr1 = %p\n", ptr1);
     print_header("*ptr1 = ", "\n", (Header *)ptr1 - 1);
+    printf("ptr2 = %p\n", ptr2);
     print_header("*ptr2 = ", "\n", (Header *)ptr2 - 1);
 
     printf("freeptr = %p\n", freeptr);

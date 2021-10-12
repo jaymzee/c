@@ -24,8 +24,6 @@ int main(int argc, char *argv[])
     void *mptr, *pptr, *bptr;
     pid_t pid;
 
-    pid = fork();
-
     bptr = sbrk(0);
     mptr = malloc(4096);
     // should be zero filled and can be used for IPC
