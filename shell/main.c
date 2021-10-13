@@ -10,31 +10,57 @@
 
 #define PROMPT "$ "
 
-int exec(char **args);
+int status;
+
+int shell_execute(char **args);
+int shell_launch(char **args);
+int bltin_cd(char **args);
+int bltin_echo(char **args);
+int bltin_exit(char **args);
+int bltin_help(char **args);
+
+char *builtin_str[] = {
+    "cd",
+    "echo",
+    "exit",
+    "help"
+};
+
+int (*builtin_func[])(char **args) = {
+    bltin_cd,
+    bltin_echo,
+    bltin_exit,
+    bltin_help
+};
+
+#define NUM_OF_BUILTINS (sizeof(builtin_str)/sizeof(char *))
 
 int main(int argc, char *argv[])
 {
     char buf[256], *cmdline;
-    int status;
 
     fputs(PROMPT, stdout);
     while ((cmdline = fgets(buf, sizeof(buf), stdin)) != NULL) {
         char **args = split(cmdline, " \n\t");
-        if (args[0] != NULL) {
-            if (strcmp(args[0], "exit") == 0) {
-                exit(0);
-            } else if (strcmp(args[0], "echo") == 0 &&
-                       strcmp(args[1], "$?") == 0) {
-                printf("%d\n", status);
-            } else {
-                status = exec(args);
-            }
-        }
+        status = shell_execute(args);
         fputs(PROMPT, stdout);
     }
 }
 
-int exec(char **args)
+int shell_execute(char **args)
+{
+    if (args[0] == NULL) {
+        return 1;
+    }
+    for (int i = 0; i < NUM_OF_BUILTINS; i++) {
+        if (strcmp(args[0], builtin_str[i]) == 0) {
+            return builtin_func[i](args);
+        }
+    }
+    return shell_launch(args);
+}
+
+int shell_launch(char **args)
 {
     int status;
     int pid;
@@ -58,4 +84,40 @@ int exec(char **args)
     } while (!WIFEXITED(status) & !WIFSIGNALED(status));
 
     return WEXITSTATUS(status);
+}
+
+int bltin_cd(char **args)
+{
+    if (args[1] == NULL) {
+        fprintf(stderr, "shell: cd: argument expected\n");
+    } else {
+        if (chdir(args[1]) != 0) {
+            perror("shell");
+        }
+    }
+    return 0;
+}
+
+int bltin_echo(char **args)
+{
+    if (strcmp(args[1], "$?") == 0) {
+        printf("%d\n", status);
+    } else {
+        // normal echo
+        for (char **ptr = args; *ptr != NULL; ptr++) {
+            printf("%s ", *ptr);
+        }
+        printf("\n");
+    }
+}
+
+int bltin_exit(char **args)
+{
+    exit(0);
+}
+
+int bltin_help(char **args)
+{
+    printf("help not available\n");
+    return 0;
 }
