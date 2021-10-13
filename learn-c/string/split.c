@@ -1,3 +1,8 @@
+/*
+ * split string - strsep implementation
+ * use when you want consecutive delimiters to always count as separate fields
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
