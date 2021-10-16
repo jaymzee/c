@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cstddef>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -63,7 +65,7 @@ int main(int argc, char *argv[])
     std::cout << num.ptr() << " " << *num.ptr() << std::endl;
 
     Buffer buf(16);
-    strcpy(buf.ptr(), "Hello, World!");
+    strncpy(buf.ptr(), "Hello, World!", 16);
     Buffer buf2(buf);
     Buffer buf3 = buf;
 
