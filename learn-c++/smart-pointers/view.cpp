@@ -52,20 +52,22 @@ public:
     // return a view of the buffer
     char *ptr() { return _buf.get(); }
 
-    size_t size() { return _size; }
-    size_t length() { return _size; }
+    size_t size() const { return _size; }
+    size_t length() const { return _size; }
 private:
     size_t _size;
     std::unique_ptr<char []> _buf;
 };
+
+#define BUF_SIZE 16
 
 int main(int argc, char *argv[])
 {
     Number num(42);
     std::cout << num.ptr() << " " << *num.ptr() << std::endl;
 
-    Buffer buf(16);
-    strncpy(buf.ptr(), "Hello, World!", 16);
+    Buffer buf(BUF_SIZE);
+    strncpy(buf.ptr(), "Hello, World!", BUF_SIZE);
     Buffer buf2(buf);
     Buffer buf3 = buf;
 
