@@ -13,7 +13,7 @@
 
 int main() {
   // Open the serial port. Change device path as needed (currently set to an standard FTDI USB-UART cable type device)
-  int serial_port = open("/dev/ttyS5", O_RDWR);
+  int serial_port = open("/dev/ttyS0", O_RDWR);
 
   // Create new termios struct, we call it 'tty' for convention
   struct termios tty;
@@ -44,12 +44,12 @@ int main() {
   // tty.c_oflag &= ~OXTABS; // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX)
   // tty.c_oflag &= ~ONOEOT; // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX)
 
-  tty.c_cc[VTIME] = 10;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
+  tty.c_cc[VTIME] = 50;    // Wait for up to 5s (50 deciseconds), returning as soon as any data is received.
   tty.c_cc[VMIN] = 0;
 
-  // Set in/out baud rate to be 9600
-  cfsetispeed(&tty, B9600);
-  cfsetospeed(&tty, B9600);
+  // Set in/out baud rate to be 115200
+  cfsetispeed(&tty, B115200);
+  cfsetospeed(&tty, B115200);
 
   // Save tty settings, also checking for error
   if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
