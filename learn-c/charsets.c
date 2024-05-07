@@ -190,6 +190,7 @@ Keypad Key  Numeric Alternate
 . (period)  .   ^[On
 ENTER       ^M  ^[OM
 
+
 ***********************************************************************
 * The console character sets
 * http://web.mit.edu/linux/redhat/redhat-4.0.0/i386/doc/HTML/ldp/Keyboard-HOWTO-6.html
@@ -204,7 +205,15 @@ These variables G0 and G1 point at a translation table, and can be changed by th
 The sequence ESC c causes a terminal reset, which is what you want if the screen is all garbled. The oft-advised echo ˆVˆO will only make G0 current, but there is no guarantee that G0 points at table a). In some distributions there is a program reset(1) that just does echo ˆ[c. If your termcap entry for the console is correct (and has an entry :rs=\Ec:), then also setterm -reset will work.
 
 The user-defined mapping table can be set using mapscrn(8). The result of the mapping is that if a symbol c is printed, the symbol s = map[c] is sent to the video memory. The bitmap that corresponds to s is found in the character ROM, and can be changed using setfont(8).
-*/
+***********************************************************************/
+
+
+/*
+ * Note 1)
+ * only use special chars 60h, 61h, 66h, 67h, 6Ah-6Eh, 74h-7Eh
+ *                        ◆    ▒    °    ±    ┘┐┌└┼⎺   ├┤┴┬│≤≥π≠£·
+ * to maintain compatibility in terminal, console, and tmux (in console)
+ */
 
 
 #include <stdio.h>
@@ -245,7 +254,7 @@ int main()
 {
     //initially G0 and G1 point to tables a and b respectively
 
-    // Set G0 DEC Special Graphics characters
+    // Set G0 to DEC Special Graphics characters
     // no effect in console
     // 0 is graphic in tmux
     printf("\e(0"); // setspecg0
@@ -263,9 +272,9 @@ int main()
     printchars(0x20, 0x7F, NONE, NONE, "G0 d user (mapscrn)");
 */
 
-    // Set G1 DEC Special Graphics characters
-    // partially implemented in console
-    // partially implemented in tmux
+    // Set G1 to DEC Special Graphics characters
+    // partially implemented in console (see Note 1)
+    // partially implemented in tmux (see Note 1)
     printf("\e)0"); // setspecg1
     printchars(0x20, 0x7F, G1, G0, "G1 b VT100 gfx");
 
@@ -273,11 +282,13 @@ int main()
     printf("\e)B"); // setusg1
     printchars(0x20, 0x7F, G1, G0, "G1 a ISO-8859-1");
 
+/*
     printf("\e)U"); // G1 = null mapping (character ROM, 7F is ⌂)
     printchars(0x00, 0x7F, G1, G0, "G1 c character ROM");
 
     printf("\e)K"); // G1 = user mapping (mapscrn, 7F is Ã)
     printchars(0x00, 0x7F, G1, G0, "G1 d user (mapscrn)");
+*/
 
     //left off with G0 pointing to table a and G1 pointing to table b
 
